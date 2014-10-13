@@ -4,7 +4,7 @@ Donate link: http://www.de-baat.nl/WP_MCM
 Tags: media library, bulk action, toggle category, taxonomy, taxonomies, attachment, media category, media categories, media tag, media tags, media taxonomy, media taxonomies, media filter, media organizer, media types, media uploader, custom, media management, attachment management, files management, user experience, wp-admin, admin
 Requires at least: 4.0
 Tested up to: 4.0
-Stable tag: 0.1.0
+Stable tag: 0.2.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -49,10 +49,18 @@ Use the `[wp_mcm]` shortcode. Various shortcode uses are explained in the **WP M
 
 == Changelog ==
 
+= 0.2.0 =
+* Fixed bug managing post categories in combination with "Use Post Taxonomy" flag.
+* Improved asset images for repository.
+
 = 0.1.0 =
 * First version starting the plugin.
 
 == Upgrade Notice ==
+
+= 0.2.0 =
+* Fixed bug managing post categories in combination with "Use Post Taxonomy" flag.
+* Improved asset images for repository.
 
 = 0.1.0 =
 As this is the first version, there is no upgrade info yet.

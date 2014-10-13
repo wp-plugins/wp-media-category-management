@@ -70,6 +70,9 @@ class WP_MCM_Plugin {
 		// Load admin style sheet.
 		add_action( 'admin_enqueue_scripts',	array( $this, 'enqueue_admin_styles' ) );
 
+		// Manage columns for attachments
+		add_filter('manage_taxonomies_for_attachment_columns',	array($this,'mcm_filter_media_taxonomy_columns'), 10, 2);
+
 	}
 
 	/**
@@ -156,25 +159,72 @@ class WP_MCM_Plugin {
 		register_taxonomy_for_object_type( WP_MCM_POST_TAXONOMY, 'attachment' );
 	}
 
-	/** change the settings for category taxonomy depending on taxonomy choosen */
-	function mcm_set_media_taxonomy_settings() {
+	/** Filter the columns shown depending on taxonomy choosen */
+	function mcm_filter_media_taxonomy_columns( $columns, $post_type ) {
 
 		// Get media taxonomy
 		$media_taxonomy = mcm_get_media_taxonomy();
-		$category_choosen = $media_taxonomy == WP_MCM_POST_TAXONOMY;
-		$this->debugMP('msg',__FUNCTION__ . ' taxonomy = ' . $media_taxonomy);
+		$this->debugMP('pr',__FUNCTION__ . ' taxonomy = ' . $media_taxonomy . ' columns = ', $columns);
 
-		// get the arguments of the already-registered taxonomy
-		$category_args = get_taxonomy( WP_MCM_POST_TAXONOMY ); // returns an object
+		// Find the columns to show
+		$filtered = array();
+		foreach ($columns as $key => $value) {
+			switch ($value) {
+				case WP_MCM_MEDIA_TAXONOMY:
+					if ( $media_taxonomy == WP_MCM_MEDIA_TAXONOMY ) {
+						$filtered[] = $value;
+					}
+					break;
+				case WP_MCM_POST_TAXONOMY:
+					if ( $media_taxonomy == WP_MCM_POST_TAXONOMY ) {
+						$filtered[] = $value;
+					}
+					break;
 
-		// make changes to the args
-		// in this example there are three changes
-		// again, note that it's an object
-		$category_args->show_ui = $category_choosen;
-		$category_args->show_admin_column = $category_choosen;
+				default:
+					$filtered[] = $value;
+					break;
+			}
+		}
 
-		// re-register the taxonomy
-		register_taxonomy( WP_MCM_POST_TAXONOMY, 'post', (array) $category_args );
+		return $filtered;
+	}
+
+	/** change the settings for category taxonomy depending on taxonomy choosen */
+	function mcm_set_media_taxonomy_settings() {
+
+		// Get the post_ID and the corresponding post_type
+		if ( isset( $_GET['post'] ) ) {
+			$post_id = $post_ID = (int) $_GET['post'];
+		} elseif ( isset( $_POST['post_ID'] ) ) {
+			$post_id = $post_ID = (int) $_POST['post_ID'];
+		} else {
+			$post_id = $post_ID = 0;
+		}
+		$post_type = get_post_type($post_id);
+		$this->debugMP('msg',__FUNCTION__ . ' post_type = ' . $post_type);
+
+		// Only limit post taxonomy for attachments
+		if ( $post_type == 'attachment' ) {
+
+			// Get media taxonomy
+			$media_taxonomy = mcm_get_media_taxonomy();
+			$use_post_taxonomy = $media_taxonomy == WP_MCM_POST_TAXONOMY;
+			$this->debugMP('msg',__FUNCTION__ . ' taxonomy = ' . $media_taxonomy);
+
+			// get the arguments of the already-registered taxonomy
+			$category_args = get_taxonomy( WP_MCM_POST_TAXONOMY ); // returns an object
+
+			// make changes to the args
+			// in this example there are three changes
+			// again, note that it's an object
+			$category_args->show_ui = $use_post_taxonomy;
+			$category_args->show_admin_column = $use_post_taxonomy;
+
+			// re-register the taxonomy
+			register_taxonomy( WP_MCM_POST_TAXONOMY, 'post', (array) $category_args );
+
+		}
 
 	}
 
