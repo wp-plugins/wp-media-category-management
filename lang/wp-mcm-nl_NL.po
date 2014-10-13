@@ -1,0 +1,257 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Media Category Management v0.1.0\n"
+"Report-Msgid-Bugs-To: http://www.de-baat.nl/WP_MCM\n"
+"POT-Creation-Date: 2013-08-24 11:37+0100\n"
+"PO-Revision-Date: 2014-10-10 21:06:56+0000\n"
+"Last-Translator: DeBAAT <De_BAAT@de-baat.nl>\n"
+"Language-Team: De B.A.A.T. <wp-mcm@de-baat.nl>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Poedit 1.5.4\n"
+"X-Poedit-Language: \n"
+"X-Poedit-Country: \n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;\n"
+"X-Poedit-Basepath: ../\n"
+"X-Poedit-Bookmarks: \n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Textdomain-Support: yes"
+
+#: include/class-wp-mcm-shortcodes.php:99
+#@ wp-mcm
+msgid "Your Settings have been saved."
+msgstr "Uw Instellingen zijn opgeslagen."
+
+#: include/class-wp-mcm-shortcodes.php:112
+#@ wp-mcm
+msgid "Description"
+msgstr "Beschrijving"
+
+#: include/class-wp-mcm-plugin.php:138
+#: include/class-wp-mcm-plugin.php:140
+#@ wp-mcm
+msgid "Media Categories"
+msgstr "Media Categorieën"
+
+#: include/class-wp-mcm-plugin.php:139
+#@ wp-mcm
+msgid "Media Category"
+msgstr "Media Categorie"
+
+#: include/class-wp-mcm-plugin.php:141
+#@ wp-mcm
+msgid "All Media Categories"
+msgstr "Alle Media Categorieën"
+
+#: include/class-wp-mcm-plugin.php:142
+#@ wp-mcm
+msgid "Edit Media Category"
+msgstr "Bewerk Media Categorie"
+
+#: include/class-wp-mcm-plugin.php:143
+#@ wp-mcm
+msgid "View Media Category"
+msgstr "Bekijk Media Categorie"
+
+#: include/class-wp-mcm-plugin.php:144
+#@ wp-mcm
+msgid "Update Media Category"
+msgstr "Bijwerken Media Categorie"
+
+#: include/class-wp-mcm-plugin.php:145
+#@ wp-mcm
+msgid "Add New Media Category"
+msgstr "Media Categorie Toevoegen"
+
+#: include/class-wp-mcm-plugin.php:146
+#@ wp-mcm
+msgid "New Media Category Name"
+msgstr "Nieuwe Media Categorie Naam"
+
+#: include/class-wp-mcm-plugin.php:147
+#@ wp-mcm
+msgid "Parent Media Category"
+msgstr "Ouder Media Categorie"
+
+#: include/class-wp-mcm-plugin.php:148
+#@ wp-mcm
+msgid "Parent Media Category:"
+msgstr "Ouder Media Categorie:"
+
+#: include/class-wp-mcm-plugin.php:149
+#@ wp-mcm
+msgid "Search Media Categories"
+msgstr "Zoek Media Categorieën"
+
+#: include/class-wp-mcm-plugin.php:239
+#@ wp-mcm
+msgid "MCM Settings"
+msgstr "MCM Instellingen"
+
+#: include/class-wp-mcm-plugin.php:296
+#@ wp-mcm
+msgid "Set your settings below:"
+msgstr "Configureer hieronder je instellingen:"
+
+#: include/class-wp-mcm-plugin.php:303
+#@ wp-mcm
+msgid "Toggle Assign"
+msgstr "Toggle Toewijzing"
+
+#: include/class-wp-mcm-plugin.php:312
+#@ wp-mcm
+msgid "Use Post Taxonomy"
+msgstr "Gebruik Bericht Taxonomie"
+
+#: include/class-wp-mcm-plugin.php:321
+#@ wp-mcm
+msgid "Default Media Category"
+msgstr "Default Media Categorie"
+
+#: include/class-wp-mcm-plugin.php:330
+#@ wp-mcm
+msgid "Default Post Category"
+msgstr "Default Bericht Categorie"
+
+#: include/class-wp-mcm-plugin.php:363
+#@ wp-mcm
+msgid " Show category toggles in list view?"
+msgstr "Toon categorie toggles in lijst modus?"
+
+#: include/class-wp-mcm-plugin.php:369
+#@ wp-mcm
+msgid " Use the same taxonomy as used for posts?"
+msgstr "Gebruik dezelfde taxonomie als voor berichten?"
+
+#: include/class-wp-mcm-plugin.php:384
+#: include/class-wp-mcm-plugin.php:404
+#@ wp-mcm
+msgid "No default category"
+msgstr "Geen default categorie"
+
+#: include/class-wp-mcm-plugin.php:388
+#@ wp-mcm
+msgid " Which media category should be used as default?"
+msgstr "Welke media categorie moet gebruikt worden als default?"
+
+#: include/class-wp-mcm-plugin.php:408
+#@ wp-mcm
+msgid " Which post category should be used as default?"
+msgstr "Welke bericht categorie moet gebruikt worden als default?"
+
+#: include/class-wp-mcm-shortcodes.php:20
+#@ wp-mcm
+msgid "MCM Shortcodes"
+msgstr "MCM Shortcodes"
+
+#: include/class-wp-mcm-shortcodes.php:70
+#@ wp-mcm
+msgid "The basic shortcode to show a gallery of all media for the categories specified in the parameter."
+msgstr "De basis shortcode die in een gallerij alle media toont voor de categorieën die als parameter doorgegeven zijn."
+
+#: include/class-wp-mcm-shortcodes.php:73
+#@ wp-mcm
+msgid "<li><strong>category</strong>=\"&lt;slugs&gt;\"<br/>"
+msgstr "<li><strong>category</strong>=\"&lt;slugs&gt;\"<br/>"
+
+#: include/class-wp-mcm-shortcodes.php:74
+#@ wp-mcm
+msgid "A comma separated list of category <code>slugs</code> to be used to filter the media to show.</li>"
+msgstr "Een komma-gescheiden lijst van categorie <code>slugs</code> om de te tonen media te filteren.</li>"
+
+#: include/class-wp-mcm-shortcodes.php:80
+#@ wp-mcm
+msgid "A shortcode with the same functionality as <code>WP_MCM</code> listed above."
+msgstr "Een shortcode met dezelfde functionaliteit als de hierboven getoonde <code>WP_MCM</code>."
+
+#: include/class-wp-mcm-shortcodes.php:95
+#@ wp-mcm
+msgid "Shortcodes"
+msgstr "Shortcodes"
+
+#: include/class-wp-mcm-shortcodes.php:104
+#@ wp-mcm
+msgid "This page shows the shortcodes supported by the WP Media Category Management plugin:"
+msgstr "Deze pagina toont de shortcodes die door de WP Media Category Management plugin ondersteund worden:"
+
+#: include/class-wp-mcm-shortcodes.php:113
+#@ wp-mcm
+msgid "Parameters"
+msgstr "Parameters"
+
+#: include/class-wp-mcm-shortcodes.php:136
+#@ wp-mcm
+msgid "<br/>This plugin supports the shortcodes as shown above as well as in all upper and lower case."
+msgstr "<br/>Deze plugin ondersteunt de hierboven beschreven shortcodes zowel in hoofd- als kleine letters."
+
+#: include/class-wp-mcm-shortcodes.php:137
+#, php-format
+#@ wp-mcm
+msgid "<br/>More information can be found <a href=\"%s\">here</a>."
+msgstr "<br/>Meer information is <a href=\"%s\">hier</a> te vinden."
+
+#: include/class-wp-mcm-shortcodes.php:138
+#, php-format
+#@ wp-mcm
+msgid "<br/>If you have suggestions to improve this plugin, please leave a comment on this same <a href=\"%s\">page</a>."
+msgstr "<br/>Als je ideeën hebt om deze plugin te verbeteren, laat dan een reactie achter op <a href=\"%s\">deze</a> pagina."
+
+#: include/wp-mcm-admin-functions.php:56
+#: include/wp-mcm-admin-functions.php:69
+#@ wp-mcm
+msgid "View all categories"
+msgstr "Toon alle categorieën"
+
+#: include/wp-mcm-admin-functions.php:215
+#: include/wp-mcm-admin-functions.php:307
+#@ wp-mcm
+msgid "Toggle "
+msgstr "Toggle "
+
+#: include/wp-mcm-admin-functions.php:381
+#, php-format
+#@ wp-mcm
+msgid "Media bulk toggled."
+msgid_plural "%s media bulk toggled."
+msgstr[0] "Media bulk toggled."
+msgstr[1] "%s media bulk toggled."
+
+#: views/admin.php:21
+#@ wp-mcm
+msgid "Welcome to WP Media Category Management"
+msgstr "Welkom bij WP Media Category Management"
+
+#. translators: plugin header field 'Name'
+#: wp-media-category-management.php:0
+#@ wp-mcm
+msgid "WP Media Category Management"
+msgstr "WP Media Category Management"
+
+#. translators: plugin header field 'PluginURI'
+#. translators: plugin header field 'AuthorURI'
+#: wp-media-category-management.php:0
+#@ wp-mcm
+msgid "http://www.de-baat.nl/WP_MCM"
+msgstr "http://www.de-baat.nl/WP_MCM"
+
+#. translators: plugin header field 'Description'
+#: wp-media-category-management.php:0
+#@ wp-mcm
+msgid "A plugin to provide category management functionality for media in WordPress sites"
+msgstr "Een plugin die het eenvoudig maakt de media categorie functionaliteit te beheren."
+
+#. translators: plugin header field 'Author'
+#: wp-media-category-management.php:0
+#@ wp-mcm
+msgid "De B.A.A.T. <wp-mcm@de-baat.nl>"
+msgstr "De B.A.A.T. <wp-mcm@de-baat.nl>"
+
+#. translators: plugin header field 'Version'
+#: wp-media-category-management.php:0
+#@ wp-mcm
+msgid "0.1.0"
+msgstr "0.1.0"
+
