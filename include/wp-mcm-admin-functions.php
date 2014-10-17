@@ -39,6 +39,25 @@ class mcm_walker_category_filter extends Walker_CategoryDropdown{
 
 }
 
+/** Custom walker for wp_dropdown_categories for media grid view filter */
+class mcm_walker_category_mediagridfilter extends Walker_CategoryDropdown {
+
+	function start_el( &$output, $category, $depth = 0, $args = array(), $id = 0 ) {
+		$pad = str_repeat( '&nbsp;', $depth * 3 );
+		$cat_name = apply_filters( 'list_cats', $category->name, $category );
+
+		// {"term_id":"1","term_name":"no category"}
+		$output .= ',{"term_id":"' . $category->term_id . '",';
+
+		$output .= '"term_name":"' . $pad . esc_attr( $cat_name );
+		if ( $args['show_count'] ) {
+			$output .= '&nbsp;&nbsp;('. $category->count .')';
+		}
+		$output .= '"}';
+	}
+
+}
+
 /** Add a category filter */
 function mcm_add_category_filter() {
 	global $pagenow;
@@ -115,8 +134,7 @@ function mcm_update_count_callback( $terms = array(), $media_taxonomy = 'categor
 	}
 }
 
-function mcm_create_sendback_url() 
-{
+function mcm_create_sendback_url() {
 
 	// Create a sendback url to report the results
 	$sendback = remove_query_arg( array('exported', 'untrashed', 'deleted', 'ids'), wp_get_referer() );
@@ -382,3 +400,108 @@ function mcm_custom_bulk_admin_notices() {
 		echo "<div class=\"updated\"><p>{$message}</p></div>";
 	}
 }
+
+/** Handle default category of attachments without category */
+function mcm_set_attachment_category( $post_ID ) {
+
+	// Check whether this user can edit this post
+	if ( !current_user_can( 'edit_post', $post_ID ) ) {
+		return;
+	}
+
+	// Check whether to use the default or not
+	if ( ! mcm_get_option_bool( 'wp_mcm_use_default_category' )) {
+		return;
+	}
+
+	// Check WP_MCM_MEDIA_TAXONOMY
+	// Only add default if attachment doesn't have WP_MCM_MEDIA_TAXONOMY categories
+	if ( ! wp_get_object_terms( $post_ID, WP_MCM_MEDIA_TAXONOMY ) ) {
+
+		// Get the default value
+		$default_category = mcm_get_option('wp_mcm_default_media_category');
+
+		// Check for valid $default_category
+		if ($default_category != '') {
+
+			// Not set so add the $media_category taxonomy to this media post
+			$add_result = wp_set_object_terms($post_ID, $default_category, WP_MCM_MEDIA_TAXONOMY, true);
+
+			// Check for error
+			if ( is_wp_error( $add_result ) ) {
+				return $add_result;
+			}
+		}
+
+	}
+
+	// Check WP_MCM_POST_TAXONOMY
+	// Only add default if attachment doesn't have WP_MCM_POST_TAXONOMY categories
+	if ( ! wp_get_object_terms( $post_ID, WP_MCM_POST_TAXONOMY ) ) {
+
+		// Get the default value
+		$default_category = mcm_get_option('wp_mcm_default_post_category');
+
+		// Check for valid $default_category
+		if ($default_category != '') {
+
+			// Not set so add the $media_category taxonomy to this media post
+			$add_result = wp_set_object_terms($post_ID, $default_category, WP_MCM_POST_TAXONOMY, true);
+
+			// Check for error
+			if ( is_wp_error( $add_result ) ) {
+				return $add_result;
+			}
+		}
+
+	}
+
+}
+add_action( 'add_attachment',  'mcm_set_attachment_category' );
+add_action( 'edit_attachment', 'mcm_set_attachment_category' );
+
+/** Changing categories in the 'grid view' */
+function mcm_ajax_query_attachments() {
+
+	if ( ! current_user_can( 'upload_files' ) ) {
+		wp_send_json_error();
+	}
+
+	$taxonomies = get_object_taxonomies( 'attachment', 'names' );
+
+	$query = isset( $_REQUEST['query'] ) ? (array) $_REQUEST['query'] : array();
+
+	$defaults = array(
+		's', 'order', 'orderby', 'posts_per_page', 'paged', 'post_mime_type',
+		'post_parent', 'post__in', 'post__not_in'
+	);
+	$query = array_intersect_key( $query, array_flip( array_merge( $defaults, $taxonomies ) ) );
+
+	$query['post_type'] = 'attachment';
+	$query['post_status'] = 'inherit';
+	if ( current_user_can( get_post_type_object( 'attachment' )->cap->read_private_posts ) ) {
+		$query['post_status'] .= ',private';
+	}
+
+	$query['tax_query'] = array( 'relation' => 'AND' );
+
+	foreach ( $taxonomies as $taxonomy ) {				
+		if ( isset( $query[$taxonomy] ) && is_numeric( $query[$taxonomy] ) ) {
+			array_push( $query['tax_query'], array(
+				'taxonomy' => $taxonomy,
+				'field'    => 'id',
+				'terms'    => $query[$taxonomy]
+			));	
+		}
+		unset ( $query[$taxonomy] );
+	}
+
+	$query = apply_filters( 'ajax_query_attachments_args', $query );
+	$query = new WP_Query( $query );
+
+	$posts = array_map( 'wp_prepare_attachment_for_js', $query->posts );
+	$posts = array_filter( $posts );
+
+	wp_send_json_success( $posts );
+}
+add_action( 'wp_ajax_query-attachments', 'mcm_ajax_query_attachments', 0 );

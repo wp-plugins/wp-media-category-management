@@ -67,8 +67,9 @@ class WP_MCM_Plugin {
 		add_action( 'admin_init',				array( $this, 'mcm_admin_init' ) );
 		add_action( 'admin_init',				array( $this, 'plugin_page_init' ) );
 
-		// Load admin style sheet.
+		// Load admin style sheet and scripts.
 		add_action( 'admin_enqueue_scripts',	array( $this, 'enqueue_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts',	array( $this, 'mcm_enqueue_media_action' ) );
 
 		// Manage columns for attachments
 		add_filter('manage_taxonomies_for_attachment_columns',	array($this,'mcm_filter_media_taxonomy_columns'), 10, 2);
@@ -247,6 +248,41 @@ class WP_MCM_Plugin {
 		}
 	}
 
+	/** Enqueue admin scripts and styles */
+	function mcm_enqueue_media_action() {
+		global $pagenow;
+		$this->debugMP('msg',__FUNCTION__ . ' pagenow = ' . $pagenow . ', wp_script_is( media-editor ) = ' . wp_script_is( 'media-editor' ));
+		if ( wp_script_is( 'media-editor' ) && (('upload.php' == $pagenow ) || ('post.php' == $pagenow ) )) {
+
+
+			// Get media taxonomy
+			$media_taxonomy = mcm_get_media_taxonomy();
+			$this->debugMP('msg',__FUNCTION__ . ' taxonomy = ' . $media_taxonomy);
+
+			$dropdown_options = array(
+				'taxonomy'        => $media_taxonomy,
+				'hide_empty'      => false,
+				'hierarchical'    => true,
+				'orderby'         => 'name',
+				'show_count'      => ( $media_taxonomy == WP_MCM_POST_TAXONOMY ) ? false : true,
+				'walker'          => new mcm_walker_category_mediagridfilter(),
+				'value'           => 'id',
+				'echo'            => false
+			);
+			$attachment_terms = wp_dropdown_categories( $dropdown_options );
+			$attachment_terms = preg_replace( array( "/<select([^>]*)>/", "/<\/select>/" ), "", $attachment_terms );
+			$this->debugMP('pr',__FUNCTION__ . ' attachment_terms = ', $attachment_terms);
+
+			echo '<script type="text/javascript">';
+			echo '/* <![CDATA[ */';
+			echo 'var mcm_taxonomies = {"' . $media_taxonomy . '":{"list_title":"' . html_entity_decode( __( 'View all categories' ), ENT_QUOTES, 'UTF-8' ) . '","term_list":[' . substr( $attachment_terms, 2 ) . ']}};';
+			echo '/* ]]> */';
+			echo '</script>';
+
+			wp_enqueue_script( 'mcm-media-views', WP_MCM_URL . '/js/wp-mcm-media-views.js', array( 'media-views' ), WP_MCM_VERSION, true );
+		}
+	}
+
 	/**
 	 * Register and enqueue admin-specific style sheet.
 	 *
@@ -367,6 +403,15 @@ class WP_MCM_Plugin {
 		);
 
 		add_settings_field(
+			'wp_mcm_use_default_category',
+			__('Use Default Category', MCM_LANG),
+			array( $this, 'create_wp_mcm_use_default_category_field' ),
+			'wp-mcm-setting-admin',
+			'wp_mcm_section_id',
+			array( 'label_for' => 'wp_mcm_use_default_category', 'field' => 'wp_mcm_use_default_category' )
+		);
+
+		add_settings_field(
 			'wp_mcm_default_media_category',
 			__('Default Media Category', MCM_LANG),
 			array( $this, 'create_wp_mcm_default_media_category_field' ),
@@ -396,6 +441,9 @@ class WP_MCM_Plugin {
 		// Check value of wp_mcm_use_post_taxonomy
 		$newinput['wp_mcm_use_post_taxonomy'] = trim($input['wp_mcm_use_post_taxonomy']);
 
+		// Check value of wp_mcm_use_post_taxonomy
+		$newinput['wp_mcm_use_default_category'] = trim($input['wp_mcm_use_default_category']);
+
 		// Check value of wp_mcm_default_media_category
 		$newinput['wp_mcm_default_media_category'] = sanitize_key(trim($input['wp_mcm_default_media_category']));
 		$newinput['wp_mcm_default_post_category']  = sanitize_key(trim($input['wp_mcm_default_post_category']));
@@ -417,6 +465,12 @@ class WP_MCM_Plugin {
 		$wp_mcm_use_post_taxonomy = mcm_get_option('wp_mcm_use_post_taxonomy');
 		$wp_mcm_use_post_taxonomy_name = WP_MCM_OPTIONS_NAME . '[wp_mcm_use_post_taxonomy]';
 		?><input type="checkbox" id="input_wp_mcm_use_post_taxonomy" name="<?php echo $wp_mcm_use_post_taxonomy_name; ?>" value="1" <?php checked('1', $wp_mcm_use_post_taxonomy);?> /><?php  echo __(' Use the same taxonomy as used for posts?', MCM_LANG);
+	}
+
+	public function create_wp_mcm_use_default_category_field(){
+		$wp_mcm_use_default_category = mcm_get_option('wp_mcm_use_default_category');
+		$wp_mcm_use_default_category_name = WP_MCM_OPTIONS_NAME . '[wp_mcm_use_default_category]';
+		?><input type="checkbox" id="input_wp_mcm_use_default_category" name="<?php echo $wp_mcm_use_default_category_name; ?>" value="1" <?php checked('1', $wp_mcm_use_default_category);?> /><?php  echo __(' Use the default category when adding or editing an attachment?', MCM_LANG);
 	}
 
 	public function create_wp_mcm_default_media_category_field(){
