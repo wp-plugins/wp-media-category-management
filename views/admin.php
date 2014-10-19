@@ -30,4 +30,11 @@
 		<?php submit_button(); ?>
 	</form>
 
+	<br/>
+	<br/>
+	<br/>
+	<br/>
+	<br/>
+	<p><?php echo sprintf(__('wp-mcm version %s.', MCM_LANG), mcm_get_option('wp_mcm_version')); ?></p>
+
 </div>

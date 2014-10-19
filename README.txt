@@ -4,7 +4,7 @@ Donate link: http://www.de-baat.nl/WP_MCM
 Tags: media library, bulk action, bulk toggle, toggle category, taxonomy, taxonomies, attachment, media category, media categories, media tag, media tags, media taxonomy, media taxonomies, media filter, media organizer, media types, media uploader, custom, media management, attachment management, files management, user experience, wp-admin, admin
 Requires at least: 4.0
 Tested up to: 4.0
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -57,6 +57,10 @@ Use the `[wp_mcm]` shortcode. Various shortcode uses are explained in the **WP M
 
 == Changelog ==
 
+= 1.1.0 =
+* Create default options when activating.
+* Limit dark table header to WP_MCM shortcode screen only.
+
 = 1.0.0 =
 * Added category filter functionality when adding media to posts or pages.
 * Added functionality to define default category when adding or editing a media file.
@@ -72,6 +76,9 @@ Use the `[wp_mcm]` shortcode. Various shortcode uses are explained in the **WP M
 * First version starting the plugin.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+* Added new functionality, see change log.
 
 = 1.0.0 =
 * Added new functionality, see change log.

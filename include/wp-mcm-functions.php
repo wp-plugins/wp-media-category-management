@@ -10,6 +10,24 @@
  */
 
 
+function mcm_init_option_defaults() {
+	$wp_mcm_options = get_option(WP_MCM_OPTIONS_NAME);
+
+	// Always set the current version
+	$wp_mcm_options['wp_mcm_version'] = WP_MCM_VERSION;
+
+	// Only set defaults when the options are not set yet
+	if ( mcm_get_option('wp_mcm_toggle_assign') === false ) {
+		$wp_mcm_options['wp_mcm_toggle_assign']				= '1';
+		$wp_mcm_options['wp_mcm_use_post_taxonomy']			= '';
+		$wp_mcm_options['wp_mcm_use_default_category']		= '';
+		$wp_mcm_options['wp_mcm_default_media_category']	= '';
+		$wp_mcm_options['wp_mcm_default_post_category']		= '';
+	}
+
+	return update_option(WP_MCM_OPTIONS_NAME, $wp_mcm_options);
+}
+
 function mcm_get_option($option_key = '') {
 	$wp_mcm_options = get_option(WP_MCM_OPTIONS_NAME);
 	return isset( $wp_mcm_options[$option_key] ) ? $wp_mcm_options[$option_key] : false;

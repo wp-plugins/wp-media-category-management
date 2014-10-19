@@ -124,6 +124,18 @@ class WP_MCM_Plugin {
 		$this->debugMP('msg', __FUNCTION__ . ' AFTER ' . WP_MCM_BASENAME . '/lang/');
 	}
 
+	/**
+	 * Fired when the plugin is activated.
+	 *
+	 * @since    1.1.0
+	 *
+	 * @param    boolean    $network_wide    True if WPMU superadmin uses "Network Activate" action, false if WPMU is disabled or plugin is activated on an individual blog.
+	 */
+	public static function activate( $network_wide ) {
+		// Create a default set of options
+		mcm_init_option_defaults();
+	}
+
 	/** register taxonomy for attachments */
 	function mcm_register_media_taxonomy() {
 
@@ -275,7 +287,7 @@ class WP_MCM_Plugin {
 
 			echo '<script type="text/javascript">';
 			echo '/* <![CDATA[ */';
-			echo 'var mcm_taxonomies = {"' . $media_taxonomy . '":{"list_title":"' . html_entity_decode( __( 'View all categories' ), ENT_QUOTES, 'UTF-8' ) . '","term_list":[' . substr( $attachment_terms, 2 ) . ']}};';
+			echo 'var mcm_taxonomies = {"' . $media_taxonomy . '":{"list_title":"' . html_entity_decode( __( 'View all categories', MCM_LANG ), ENT_QUOTES, 'UTF-8' ) . '","term_list":[' . substr( $attachment_terms, 2 ) . ']}};';
 			echo '/* ]]> */';
 			echo '</script>';
 
@@ -434,6 +446,9 @@ class WP_MCM_Plugin {
 	function check_wp_mcm_option($input) {
 
 		$newinput = array();
+
+		// Always set the current version
+		$newinput['wp_mcm_version'] = WP_MCM_VERSION;
 
 		// Check value of wp_mcm_toggle_assign
 		$newinput['wp_mcm_toggle_assign'] = trim($input['wp_mcm_toggle_assign']);
