@@ -4,7 +4,7 @@ Donate link: http://www.de-baat.nl/WP_MCM
 Tags: media library, bulk action, bulk toggle, toggle category, taxonomy, taxonomies, attachment, media category, media categories, media tag, media tags, media taxonomy, media taxonomies, media filter, media organizer, media types, media uploader, custom, media management, attachment management, files management, user experience, wp-admin, admin
 Requires at least: 4.0
 Tested up to: 4.0
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -14,12 +14,13 @@ A plugin to provide bulk category management functionality for media in WordPres
 This WordPress plugin will ease the management of media categories, including bulk actions.
 It supports categories for media using either the existing post categories or a dedicated media_category custom taxonomy.
 The plugin supports easy category toggling on the media list page view and also bulk toggling for multiple media at once.
+It now also supports media taxonomies defined by other plugins.
 
-* use post categories or dedicated media categories,
-* control your media categories via admin the same way as post categories,
-* bulk toggle any media taxonomy assignment from Media Library via admin,
-* filter media files in Media Library by your custom taxonomies, both in list and grid view
-* use new shortcode to filter the media on galleries in posts,
+* Use post categories or dedicated media categories.
+* Control your media categories via admin the same way as post categories.
+* Bulk toggle any media taxonomy assignment from Media Library via admin.
+* Filter media files in Media Library by your custom taxonomies, both in list and grid view.
+* Use new shortcode to filter the media on galleries in posts.
 
 == Installation ==
 
@@ -27,16 +28,36 @@ The plugin supports easy category toggling on the media list page view and also 
 1. Activate the plugin through 'Plugins' menu in WordPress admin
 1. Adjust plugin's settings on **WP MCM -> Settings**
 1. Enjoy WordPress Media Category Management!
-1. Use shortcode `[wp_mcm category="<slug>"]` in your posts or pages, see also **WP MCM -> Shortcodes**
+1. Use shortcode `[wp_mcm taxonomy="<slug>" category="<slugs>"]` in your posts or pages, see also **WP MCM -> Shortcodes**
 
 == Frequently Asked Questions ==
 
 = How do I use this plugin? =
 
-On the options page, define which category to use for media: either use the standard post category or a dedicated media category.
+On the options page, define which taxonomy to use for media: either use the standard post taxonomy, a dedicated media taxonomy or a custom media taxonomy.
 Define the categories to be used for media.
-Assign categories to media, either individually or in bulk.
+Toggle category assignments to media, either individually or in bulk.
 Use category filter when adding media to posts or pages.
+
+= How do I use this plugin to support the media taxonomy of another plugin? =
+
+There are a number of plugins available for managing media categories.
+This plugin now supports the settings previously defined to support those media categories.
+
+Check out the **MCM Settings** page which shows an option "Media Taxonomy To Use".
+The dropdown list of this option shows a list of all taxonomies currently used by this WordPress installation.
+The option "**(P) Categories**" is the taxonomy defined by default for posts.
+The option "**MCM Categories**" is the taxonomy previously defined as "**Media Categories**" by version 1.1 and earlier of this plugin.
+If there are other taxonomies currently assigned to attachments, the list shows the corresponding taxonomy slug prefixed with **(*)**.
+When such a taxonomy is selected to be used, the taxonomy will be registered anew with the indication "**(*) Custom MCM Categories**".
+As long as this taxonomy is selected, the functionality available for "**MCM Categories**" is now available for these "**(*) Custom MCM Categories**", i.e. toggling and filtering.
+The name shown for the "**(*) Custom MCM Categories**" can be changed using the option "**Name for Custom MCM Taxonomy**" on the **MCM Settings** page.
+
+= How can I use the "Default Media Category"? =
+
+First enable the option "**Use Default Category**" on the **MCM Settings** page.
+When enabled and a media attachment has no category defined yet, the value of "**Default Media Category**" will be assigned automatically when a media attachment is added or edited.
+The default value is also used in the `[wp_mcm]` shortcode to automatically filter the attachments to be shown.
 
 = How do I use the shortcode of this plugin? =
 
@@ -57,6 +78,12 @@ Use the `[wp_mcm]` shortcode. Various shortcode uses are explained in the **WP M
 
 == Changelog ==
 
+= 1.2.0 =
+* Renamed "Media Categories" to "MCM Categories" for easier distinction from other taxonomies.
+* Added support for media categories as defined by other plugins.
+* Updated MCM Settings page to reflect support for other media categories.
+* Added support for new shortcode parameter "taxonomy".
+
 = 1.1.0 =
 * Create default options when activating.
 * Limit dark table header to WP_MCM shortcode screen only.
@@ -76,6 +103,9 @@ Use the `[wp_mcm]` shortcode. Various shortcode uses are explained in the **WP M
 * First version starting the plugin.
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+* Added new functionality, see change log.
 
 = 1.1.0 =
 * Added new functionality, see change log.

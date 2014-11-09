@@ -141,31 +141,65 @@ class WP_MCM_Plugin {
 
 		// Get media taxonomy
 		$media_taxonomy = mcm_get_media_taxonomy();
-		$use_media_taxonomy = $media_taxonomy != WP_MCM_POST_TAXONOMY;
 		$this->debugMP('msg',__FUNCTION__ . ' taxonomy = ' . $media_taxonomy);
 
 		// Register WP_MCM_MEDIA_TAXONOMY
+		$use_media_taxonomy = $media_taxonomy == WP_MCM_MEDIA_TAXONOMY;
 		$args = array(
 			'hierarchical'			=> true,  // hierarchical: true = display as categories, false = display as tags
 			'show_ui'				=> $use_media_taxonomy,
 			'show_admin_column'		=> $use_media_taxonomy,
 			'update_count_callback'	=> 'mcm_update_count_callback',
 			'labels' => array(
-				'name'				=> __('Media Categories', MCM_LANG),
-				'singular_name'		=> __('Media Category', MCM_LANG),
-				'menu_name'			=> __('Media Categories', MCM_LANG),
-				'all_items'			=> __('All Media Categories', MCM_LANG),
-				'edit_item'			=> __('Edit Media Category', MCM_LANG),
-				'view_item'			=> __('View Media Category', MCM_LANG),
-				'update_item'		=> __('Update Media Category', MCM_LANG),
-				'add_new_item'		=> __('Add New Media Category', MCM_LANG),
-				'new_item_name'		=> __('New Media Category Name', MCM_LANG),
-				'parent_item'		=> __('Parent Media Category', MCM_LANG),
-				'parent_item_colon'	=> __('Parent Media Category:', MCM_LANG),
-				'search_items'		=> __('Search Media Categories', MCM_LANG),
+				'name'				=> __('MCM Categories', MCM_LANG),
+				'singular_name'		=> __('MCM Category', MCM_LANG),
+				'menu_name'			=> __('MCM Categories', MCM_LANG),
+				'all_items'			=> __('All MCM Categories', MCM_LANG),
+				'edit_item'			=> __('Edit MCM Category', MCM_LANG),
+				'view_item'			=> __('View MCM Category', MCM_LANG),
+				'update_item'		=> __('Update MCM Category', MCM_LANG),
+				'add_new_item'		=> __('Add New MCM Category', MCM_LANG),
+				'new_item_name'		=> __('New MCM Category Name', MCM_LANG),
+				'parent_item'		=> __('Parent MCM Category', MCM_LANG),
+				'parent_item_colon'	=> __('Parent MCM Category:', MCM_LANG),
+				'search_items'		=> __('Search MCM Categories', MCM_LANG),
 			),
 		);
 		register_taxonomy( WP_MCM_MEDIA_TAXONOMY, array( 'attachment' ), $args );
+
+		// Handle a taxonomy which may have been used previously by another plugin
+		$wp_mcm_media_taxonomy_to_use = mcm_get_option('wp_mcm_media_taxonomy_to_use');
+		if ( ($wp_mcm_media_taxonomy_to_use != WP_MCM_MEDIA_TAXONOMY) &&
+			 ($wp_mcm_media_taxonomy_to_use != WP_MCM_POST_TAXONOMY) &&
+			 (! taxonomy_exists($wp_mcm_media_taxonomy_to_use))) {
+			// Create a nice name for the Custom MCM Taxonomy
+			$wp_mcm_custom_taxonomy_name = mcm_get_option('wp_mcm_custom_taxonomy_name');
+			if ($wp_mcm_custom_taxonomy_name == '') {
+				$wp_mcm_custom_taxonomy_name = __('Custom MCM Categories', MCM_LANG);
+			}
+			// Register custom taxonomy to use
+			$args = array(
+				'hierarchical'			=> true,  // hierarchical: true = display as categories, false = display as tags
+				'show_ui'				=> true,
+				'show_admin_column'		=> true,
+				'update_count_callback'	=> 'mcm_update_count_callback',
+				'labels' => array(
+					'name'				=> '(*) ' . $wp_mcm_custom_taxonomy_name,
+					'singular_name'		=> __('Custom MCM Category', MCM_LANG),
+					'menu_name'			=> $wp_mcm_custom_taxonomy_name,
+					'all_items'			=> __('All Custom MCM Categories', MCM_LANG),
+					'edit_item'			=> __('Edit Custom MCM Category', MCM_LANG),
+					'view_item'			=> __('View Custom MCM Category', MCM_LANG),
+					'update_item'		=> __('Update Custom MCM Category', MCM_LANG),
+					'add_new_item'		=> __('Add New Custom MCM Category', MCM_LANG),
+					'new_item_name'		=> __('New Custom MCM Category Name', MCM_LANG),
+					'parent_item'		=> __('Parent Custom MCM Category', MCM_LANG),
+					'parent_item_colon'	=> __('Parent Custom MCM Category:', MCM_LANG),
+					'search_items'		=> __('Search Custom MCM Categories', MCM_LANG),
+				),
+			);
+			register_taxonomy( $wp_mcm_media_taxonomy_to_use, array( 'attachment' ), $args );
+		}
 
 		// Register WP_MCM_POST_TAXONOMY for attachments
 		$this->mcm_set_media_taxonomy_settings();
@@ -182,21 +216,8 @@ class WP_MCM_Plugin {
 		// Find the columns to show
 		$filtered = array();
 		foreach ($columns as $key => $value) {
-			switch ($value) {
-				case WP_MCM_MEDIA_TAXONOMY:
-					if ( $media_taxonomy == WP_MCM_MEDIA_TAXONOMY ) {
-						$filtered[] = $value;
-					}
-					break;
-				case WP_MCM_POST_TAXONOMY:
-					if ( $media_taxonomy == WP_MCM_POST_TAXONOMY ) {
-						$filtered[] = $value;
-					}
-					break;
-
-				default:
-					$filtered[] = $value;
-					break;
+			if ($value == $media_taxonomy) {
+				$filtered[] = $value;
 			}
 		}
 
@@ -229,7 +250,6 @@ class WP_MCM_Plugin {
 			$category_args = get_taxonomy( WP_MCM_POST_TAXONOMY ); // returns an object
 
 			// make changes to the args
-			// in this example there are three changes
 			// again, note that it's an object
 			$category_args->show_ui = $use_post_taxonomy;
 			$category_args->show_admin_column = $use_post_taxonomy;
@@ -405,13 +425,31 @@ class WP_MCM_Plugin {
 			array( 'label_for' => 'wp_mcm_toggle_assign', 'field' => 'wp_mcm_toggle_assign' )
 		);
 
+//		add_settings_field(
+//			'wp_mcm_debug',
+//			__('Debug info', MCM_LANG),
+//			array( $this, 'create_wp_mcm_debug_field' ),
+//			'wp-mcm-setting-admin',
+//			'wp_mcm_section_id',
+//			array( 'label_for' => 'wp_mcm_debug', 'field' => 'wp_mcm_debug' )
+//		);
+
 		add_settings_field(
-			'wp_mcm_use_post_taxonomy',
-			__('Use Post Taxonomy', MCM_LANG),
-			array( $this, 'create_wp_mcm_use_post_taxonomy_field' ),
+			'wp_mcm_media_taxonomy_to_use',
+			__('Media Taxonomy To Use', MCM_LANG),
+			array( $this, 'create_wp_mcm_media_taxonomy_to_use_field' ),
 			'wp-mcm-setting-admin',
 			'wp_mcm_section_id',
-			array( 'label_for' => 'wp_mcm_use_post_taxonomy', 'field' => 'wp_mcm_use_post_taxonomy' )
+			array( 'label_for' => 'wp_mcm_media_taxonomy_to_use', 'field' => 'wp_mcm_media_taxonomy_to_use' )
+		);
+
+		add_settings_field(
+			'wp_mcm_custom_taxonomy_name',
+			__('Name for Custom MCM Taxonomy', MCM_LANG),
+			array( $this, 'create_wp_mcm_custom_taxonomy_name_field' ),
+			'wp-mcm-setting-admin',
+			'wp_mcm_section_id',
+			array( 'label_for' => 'wp_mcm_custom_taxonomy_name', 'field' => 'wp_mcm_custom_taxonomy_name' )
 		);
 
 		add_settings_field(
@@ -432,14 +470,23 @@ class WP_MCM_Plugin {
 			array( 'label_for' => 'wp_mcm_default_media_category', 'field' => 'wp_mcm_default_media_category' )
 		);
 
-		add_settings_field(
-			'wp_mcm_default_post_category',
-			__('Default Post Category', MCM_LANG),
-			array( $this, 'create_wp_mcm_default_post_category_field' ),
-			'wp-mcm-setting-admin',
-			'wp_mcm_section_id',
-			array( 'label_for' => 'wp_mcm_default_post_category', 'field' => 'wp_mcm_default_post_category' )
-		);
+//		add_settings_field(
+//			'wp_mcm_default_post_category',
+//			__('Default Post Category', MCM_LANG),
+//			array( $this, 'create_wp_mcm_default_post_category_field' ),
+//			'wp-mcm-setting-admin',
+//			'wp_mcm_section_id',
+//			array( 'label_for' => 'wp_mcm_default_post_category', 'field' => 'wp_mcm_default_post_category' )
+//		);
+
+//		add_settings_field(
+//			'wp_mcm_default_custom_media_category',
+//			__('Default Custom Media Category', MCM_LANG),
+//			array( $this, 'create_wp_mcm_default_custom_media_category_field' ),
+//			'wp-mcm-setting-admin',
+//			'wp_mcm_section_id',
+//			array( 'label_for' => 'wp_mcm_default_custom_media_category', 'field' => 'wp_mcm_default_custom_media_category' )
+//		);
 
 	}
 
@@ -453,15 +500,32 @@ class WP_MCM_Plugin {
 		// Check value of wp_mcm_toggle_assign
 		$newinput['wp_mcm_toggle_assign'] = trim($input['wp_mcm_toggle_assign']);
 
-		// Check value of wp_mcm_use_post_taxonomy
-		$newinput['wp_mcm_use_post_taxonomy'] = trim($input['wp_mcm_use_post_taxonomy']);
+		// Check value of wp_mcm_media_taxonomy_to_use
+		$newinput['wp_mcm_media_taxonomy_to_use'] = sanitize_key(trim($input['wp_mcm_media_taxonomy_to_use']));
+
+		// Check value of wp_mcm_custom_taxonomy_name
+		$newinput['wp_mcm_custom_taxonomy_name'] = trim($input['wp_mcm_custom_taxonomy_name']);
 
 		// Check value of wp_mcm_use_post_taxonomy
 		$newinput['wp_mcm_use_default_category'] = trim($input['wp_mcm_use_default_category']);
 
 		// Check value of wp_mcm_default_media_category
-		$newinput['wp_mcm_default_media_category'] = sanitize_key(trim($input['wp_mcm_default_media_category']));
-		$newinput['wp_mcm_default_post_category']  = sanitize_key(trim($input['wp_mcm_default_post_category']));
+		// If Media Taxonomy To Use changed, reset Default Media Category
+		if ($newinput['wp_mcm_media_taxonomy_to_use'] != mcm_get_option('wp_mcm_media_taxonomy_to_use')) {
+			$newinput['wp_mcm_default_media_category'] = WP_MCM_OPTION_NONE;
+		} else {
+			$newinput['wp_mcm_default_media_category'] = sanitize_key(trim($input['wp_mcm_default_media_category']));
+		}
+//		$newinput['wp_mcm_default_post_category']  = sanitize_key(trim($input['wp_mcm_default_post_category']));
+//		$newinput['wp_mcm_default_custom_media_category'] = sanitize_key(trim($input['wp_mcm_default_custom_media_category']));
+
+		$newinput['wp_mcm_debug'] = 'OPTION wp_mcm_media_taxonomy_to_use: ' . mcm_get_option('wp_mcm_media_taxonomy_to_use')
+				. ' \n '
+				. 'wp_mcm_media_taxonomy_to_use: ' . sanitize_key(trim($input['wp_mcm_media_taxonomy_to_use']))
+				. ' \n '
+				. 'wp_mcm_default_media_category: ' . sanitize_key(trim($input['wp_mcm_default_media_category']))
+				. ' '
+				;
 
 		return $newinput;
 	}
@@ -473,13 +537,62 @@ class WP_MCM_Plugin {
 	public function create_wp_mcm_toggle_assign_field(){
 		$wp_mcm_toggle_assign = mcm_get_option('wp_mcm_toggle_assign');
 		$wp_mcm_toggle_assign_name = WP_MCM_OPTIONS_NAME . '[wp_mcm_toggle_assign]';
-		?><input type="checkbox" id="input_wp_mcm_toggle_assign" name="<?php echo $wp_mcm_toggle_assign_name; ?>" value="1" <?php checked('1', $wp_mcm_toggle_assign);?> /><?php  echo __(' Show category toggles in list view?', MCM_LANG);
+		?><input type="checkbox" id="input_wp_mcm_toggle_assign" name="<?php echo $wp_mcm_toggle_assign_name; ?>" value="1" <?php checked('1', $wp_mcm_toggle_assign);?> />
+		<?php  echo __(' Show category toggles in list view?', MCM_LANG);
 	}
 
-	public function create_wp_mcm_use_post_taxonomy_field(){
-		$wp_mcm_use_post_taxonomy = mcm_get_option('wp_mcm_use_post_taxonomy');
-		$wp_mcm_use_post_taxonomy_name = WP_MCM_OPTIONS_NAME . '[wp_mcm_use_post_taxonomy]';
-		?><input type="checkbox" id="input_wp_mcm_use_post_taxonomy" name="<?php echo $wp_mcm_use_post_taxonomy_name; ?>" value="1" <?php checked('1', $wp_mcm_use_post_taxonomy);?> /><?php  echo __(' Use the same taxonomy as used for posts?', MCM_LANG);
+	public function create_wp_mcm_custom_taxonomy_name_field(){
+		$wp_mcm_custom_taxonomy_name = mcm_get_option('wp_mcm_custom_taxonomy_name');
+		$wp_mcm_custom_taxonomy_name_name = WP_MCM_OPTIONS_NAME . '[wp_mcm_custom_taxonomy_name]';
+		?><input type="text" id="input_wp_mcm_custom_taxonomy_name" name="<?php echo $wp_mcm_custom_taxonomy_name_name; ?>" value="<?php echo $wp_mcm_custom_taxonomy_name;?>" />
+		<?php  echo __(' What text should be used as name for the Custom MCM Taxonomy?', MCM_LANG);
+	}
+
+	public function create_wp_mcm_debug_field(){
+		$wp_mcm_debug = mcm_get_option('wp_mcm_debug');
+		$wp_mcm_debug_name = WP_MCM_OPTIONS_NAME . '[wp_mcm_debug]';
+		?><textarea cols="60" rows="4" id="input_wp_mcm_debug" name="<?php echo $wp_mcm_debug_name; ?>"><?php echo $wp_mcm_debug; ?></textarea>
+		<?php  echo __(' Debug info.', MCM_LANG);
+	}
+
+	public function create_wp_mcm_media_taxonomy_to_use_field(){
+		$wp_mcm_media_taxonomy_to_use = mcm_get_option('wp_mcm_media_taxonomy_to_use');
+		$wp_mcm_media_taxonomy_to_use_name = WP_MCM_OPTIONS_NAME . '[wp_mcm_media_taxonomy_to_use]';
+
+		// Get the $mediaTaxonomies available
+		//$mediaTaxonomies = get_taxonomies( array( 'object_type' => array( 'attachment' ) ), 'objects' );
+		$mediaTaxonomies = mcm_get_media_taxonomies();
+		$this->debugMP('pr',__FUNCTION__  . ' mediaTaxonomies found:', $mediaTaxonomies);
+
+		// Create the html dropdown
+		$HTML  = "";
+		if ($mediaTaxonomies) {
+
+			$HTML .= "<select id='{$wp_mcm_media_taxonomy_to_use_name}' name='{$wp_mcm_media_taxonomy_to_use_name}' class='postform'>";
+
+			// Create the dropdown list for each taxonomy found
+			foreach ($mediaTaxonomies as $mediaTaxonomy) {
+				$is_selected = ( $mediaTaxonomy['name'] === $wp_mcm_media_taxonomy_to_use ) ? 'selected' : '';
+				$HTML .= "<option value='{$mediaTaxonomy['name']}' $is_selected>{$mediaTaxonomy['label']}</option>";
+			}
+
+			$HTML .= "</select>";
+		} else {
+			$HTML .= " " . __('Current value:', MCM_LANG) . " <b>" . $wp_mcm_media_taxonomy_to_use . "</b> ";
+		}
+
+		$HTML .= '<span> ';
+		$HTML .= __('Which taxonomy should be used to manage the media?', MCM_LANG);
+		$HTML .= '<br/>';
+		$HTML .= ' ' . __('(P) means that the taxonomy is also used for posts.', MCM_LANG);
+		$HTML .= '<br/>';
+		$HTML .= ' ' . __('(*) means that the taxonomy may have been registered previously, e.g. by another plugin.', MCM_LANG);
+		$HTML .= '<br/>';
+		$HTML .= ' ' . __('(#<strong>X</strong>) means that the taxonomy is currently assigned to <strong>X</strong> attachments.', MCM_LANG);
+		$HTML .= '</span>';
+		echo $HTML;
+		return;
+
 	}
 
 	public function create_wp_mcm_use_default_category_field(){
@@ -489,10 +602,17 @@ class WP_MCM_Plugin {
 	}
 
 	public function create_wp_mcm_default_media_category_field(){
+		$wp_mcm_media_taxonomy_to_use = mcm_get_option('wp_mcm_media_taxonomy_to_use');
 		$wp_mcm_default_media_category = mcm_get_option('wp_mcm_default_media_category');
 		$wp_mcm_default_media_category_name = WP_MCM_OPTIONS_NAME . '[wp_mcm_default_media_category]';
+		// Only show_option_none when no POST Taxonomy
+		if ($wp_mcm_media_taxonomy_to_use == WP_MCM_POST_TAXONOMY) {
+			$wp_mcm_show_option_none = '';
+		} else {
+			$wp_mcm_show_option_none = __('No default category', MCM_LANG);
+		}
 		$dropdown_options = array(
-			'taxonomy'          => WP_MCM_MEDIA_TAXONOMY,
+			'taxonomy'          => $wp_mcm_media_taxonomy_to_use,
 			'name'              => $wp_mcm_default_media_category_name,
 			'selected'          => $wp_mcm_default_media_category,
 			'hide_empty'        => 0,
@@ -500,11 +620,11 @@ class WP_MCM_Plugin {
 			'orderby'           => 'name',
 			'walker'            => new mcm_walker_category_filter(),
 			'show_count'        => false,
-			'show_option_none'  => __('No default category', MCM_LANG),
-			'option_none_value' => '',
+			'show_option_none'  => $wp_mcm_show_option_none,
+			'option_none_value' => WP_MCM_OPTION_NONE,
 		);
 		wp_dropdown_categories( $dropdown_options );
-		echo __(' Which media category should be used as default?', MCM_LANG);
+		echo ' ' . __('Which category of the selected media taxonomy should be used as default?', MCM_LANG);
 	}
 
 	public function create_wp_mcm_default_post_category_field(){
@@ -525,6 +645,26 @@ class WP_MCM_Plugin {
 		);
 		wp_dropdown_categories( $dropdown_options );
 		echo __(' Which post category should be used as default?', MCM_LANG);
+	}
+
+	public function create_wp_mcm_default_custom_media_category_field(){
+		$wp_mcm_custom_media_taxonomy = mcm_get_option('wp_mcm_media_taxonomy_to_use');
+		$wp_mcm_default_custom_media_category = mcm_get_option('wp_mcm_default_custom_media_category');
+		$wp_mcm_default_custom_media_category_name = WP_MCM_OPTIONS_NAME . '[wp_mcm_default_custom_media_category]';
+		$dropdown_options = array(
+			'taxonomy'          => $wp_mcm_custom_media_taxonomy,
+			'name'              => $wp_mcm_default_custom_media_category_name,
+			'selected'          => $wp_mcm_default_custom_media_category,
+			'hide_empty'        => 0,
+			'hierarchical'      => true,
+			'orderby'           => 'name',
+			'walker'            => new mcm_walker_category_filter(),
+			'show_count'        => false,
+			'show_option_none'  => __('No default category', MCM_LANG),
+			'option_none_value' => '',
+		);
+		wp_dropdown_categories( $dropdown_options );
+		echo __(' Which custom media category should be used as default?', MCM_LANG);
 	}
 
 	/**

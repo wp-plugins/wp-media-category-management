@@ -13,17 +13,32 @@
 function mcm_init_option_defaults() {
 	$wp_mcm_options = get_option(WP_MCM_OPTIONS_NAME);
 
-	// Always set the current version
-	$wp_mcm_options['wp_mcm_version'] = WP_MCM_VERSION;
-
 	// Only set defaults when the options are not set yet
 	if ( mcm_get_option('wp_mcm_toggle_assign') === false ) {
 		$wp_mcm_options['wp_mcm_toggle_assign']				= '1';
+		$wp_mcm_options['wp_mcm_media_taxonomy_to_use']		= WP_MCM_MEDIA_TAXONOMY;
+		$wp_mcm_options['wp_mcm_custom_taxonomy_name']		= '';
 		$wp_mcm_options['wp_mcm_use_post_taxonomy']			= '';
 		$wp_mcm_options['wp_mcm_use_default_category']		= '';
-		$wp_mcm_options['wp_mcm_default_media_category']	= '';
+		$wp_mcm_options['wp_mcm_default_media_category']	= WP_MCM_OPTION_NONE;
 		$wp_mcm_options['wp_mcm_default_post_category']		= '';
+	} else {
+		// Compare version to migrate the options from pre-V1.2
+		$version_on_start = mcm_get_option('wp_mcm_version');
+		if ( version_compare($version_on_start,'1.2','<') ) {
+			// Check whether POST or MEDIA taxonomy was used before
+			if (mcm_get_option_bool('wp_mcm_use_post_taxonomy')) {
+				$wp_mcm_options['wp_mcm_media_taxonomy_to_use']		= WP_MCM_POST_TAXONOMY;
+				$wp_mcm_options['wp_mcm_default_media_category']	= $wp_mcm_options['wp_mcm_default_post_category'];
+			} else {
+				$wp_mcm_options['wp_mcm_media_taxonomy_to_use']		= WP_MCM_MEDIA_TAXONOMY;
+			}
+			$wp_mcm_options['wp_mcm_custom_taxonomy_name']		= '';
+		}
 	}
+
+	// Always set the current version
+	$wp_mcm_options['wp_mcm_version'] = WP_MCM_VERSION;
 
 	return update_option(WP_MCM_OPTIONS_NAME, $wp_mcm_options);
 }
@@ -62,31 +77,116 @@ function mcm_string_to_bool($value) {
 	}
 }
 
+function mcm_get_posts_for_media_taxonomy( $taxonomy = '' ) {
+
+	global $wpdb;
+
+	// Validate input
+	if ($taxonomy == '') {
+		return array();
+	}
+
+	// Get the terms for this taxonomy
+	$query  = "SELECT * FROM $wpdb->term_taxonomy AS tt ";
+	$query .= " WHERE tt.taxonomy = '$taxonomy' ";
+	$taxonomyTerms = $wpdb->get_results( $query );
+	mcm_debugMP('pr',__FUNCTION__ . ' taxonomy found ' . count($taxonomyTerms) . ' with query = ' . $query, $taxonomyTerms);
+
+	// Validate $taxonomyTerms found
+	if ( is_wp_error($taxonomyTerms)) {
+		return array();
+	}
+
+	// Create a list of taxonomyTermIDs to be used for the query
+	$taxonomyTermIDs = array();
+	foreach ($taxonomyTerms as $term) {
+		$taxonomyTermIDs[] = $term->term_taxonomy_id;
+	}
+	$taxonomyTermIDs = implode( ',', $taxonomyTermIDs );
+
+	$query  = "SELECT $wpdb->posts.* FROM $wpdb->posts ";
+	$query .= " INNER JOIN $wpdb->term_relationships ON ($wpdb->posts.ID = $wpdb->term_relationships.object_id) ";
+	$query .= " WHERE 1=1 ";
+	$query .= "   AND $wpdb->posts.post_type = 'attachment' ";
+	$query .= "   AND ($wpdb->term_relationships.term_taxonomy_id IN ($taxonomyTermIDs)) ";
+	$query .= " GROUP BY $wpdb->posts.ID";
+	$taxonomyPosts = $wpdb->get_results( $query );
+	mcm_debugMP('msg',__FUNCTION__ . ' taxonomy found ' . count($taxonomyPosts) . ' with query = ', $query);
+
+	return $taxonomyPosts;
+
+}
+
+function mcm_get_media_taxonomies() {
+
+	global $wpdb;
+
+	$query  = "SELECT taxonomy FROM $wpdb->term_taxonomy ";
+	$query .= " GROUP BY taxonomy";
+	$taxonomiesFound = $wpdb->get_results( $query, 'ARRAY_A' );
+	$mediaTaxonomiesFound = get_taxonomies( array( 'object_type' => array( 'attachment' ) ), 'names' );
+	// Merge both lists found
+	foreach ($taxonomiesFound as $taxonomyObject) {
+		$mediaTaxonomiesFound[$taxonomyObject['taxonomy']] = $taxonomyObject['taxonomy'];
+	}
+	mcm_debugMP('pr',__FUNCTION__  . ' query = ' . $query . ', mediaTaxonomiesFound = ', $mediaTaxonomiesFound);
+
+	// Create an element for each taxonomy found
+	$mediaTaxonomies = array();
+	foreach ($mediaTaxonomiesFound as $taxonomyObject) {
+		$taxonomySlug = $taxonomyObject;
+		//mcm_debugMP('pr',__FUNCTION__  . ' taxonomySlug found:' . $taxonomySlug . ', taxonomyObject found:', $taxonomyObject);
+
+		// Get the objects belonging to these terms
+		$mediaTermPosts = mcm_get_posts_for_media_taxonomy($taxonomySlug);
+		//mcm_debugMP('pr',__FUNCTION__  . ' taxonomySlug found:' . count($mediaTermPosts) . ' mediaTermPosts found:', $mediaTermPosts);
+		$countMediaPosts = count($mediaTermPosts);
+
+		// Get the taxonomy information
+		$mediaTaxonomy = get_taxonomy($taxonomySlug);
+		mcm_debugMP('pr',__FUNCTION__  . ' taxonomySlug found:' . $taxonomySlug . ', mediaTaxonomy found:', $mediaTaxonomy);
+		$mediaTaxonomyData = array();
+		if ($mediaTaxonomy) {
+			$mediaTaxonomyData['object'] = $mediaTaxonomy;
+			$mediaTaxonomyData['name']   = $mediaTaxonomy->name;
+			$mediaTaxonomyData['label']  = $mediaTaxonomy->label . ' (#' . $countMediaPosts . ')';
+			if (is_object_in_taxonomy('post', $taxonomySlug)) {
+				$mediaTaxonomyData['label'] = '(P) ' . $mediaTaxonomyData['label'];
+			}
+		} else {
+			$mediaTaxonomyData['object'] = false;
+			$mediaTaxonomyData['name']   = $taxonomySlug;
+			$mediaTaxonomyData['label']  = '(*) ' . $taxonomySlug . ' (#' . $countMediaPosts . ')';
+		}
+		// Only add taxonomy when either attachments found OR it is for attachments
+		//mcm_debugMP('msg',__FUNCTION__  . ' taxonomySlug: ' . $taxonomySlug . ', tested for attachment with is_object_in_taxonomy found:' . is_object_in_taxonomy('attachment', $taxonomySlug));
+		if (($countMediaPosts > 0) || (is_object_in_taxonomy(array('post','attachment'), $taxonomySlug))) {
+			$mediaTaxonomies[$taxonomySlug] = $mediaTaxonomyData;
+		}
+	}
+
+	//mcm_debugMP('pr',__FUNCTION__  . ' mediaTaxonomies found:', $mediaTaxonomies);
+	return $mediaTaxonomies;
+
+}
+
 function mcm_get_media_taxonomy() {
 
-	// Check to use post taxonomy
-	if (mcm_string_to_bool(mcm_get_option('wp_mcm_use_post_taxonomy'))) {
-		return WP_MCM_POST_TAXONOMY;
-	}
-	/**
-	 * else:
-	 * Separate media categories from post categories
-	 * Use a custom category called 'category_media' for the categories in the media library
-	 */
-	return WP_MCM_MEDIA_TAXONOMY;
+	return mcm_get_option('wp_mcm_media_taxonomy_to_use');
+
 }
 
 /** Custom update_count_callback */
-function mcm_get_category_ids( $mcm_atts = array() ) {
+function mcm_get_attachment_ids( $mcm_atts = array() ) {
 
 	// Get media taxonomy and use default category value
 	$media_taxonomy = mcm_get_media_taxonomy();
-	if ($media_taxonomy == WP_MCM_POST_TAXONOMY) {
-		$media_categories = mcm_get_option( 'wp_mcm_default_post_category' );
-	} else {
-		$media_categories = mcm_get_option( 'wp_mcm_default_media_category' );
+	if (isset($mcm_atts['taxonomy']) && $mcm_atts['taxonomy'] != '') {
+		$media_taxonomy = $mcm_atts['taxonomy'];
 	}
 
+	// Get media category and default
+	$media_categories = mcm_get_option( 'wp_mcm_default_media_category' );
 	if (isset($mcm_atts['category']) && $mcm_atts['category'] != '') {
 		$media_categories = explode(',', $mcm_atts['category']);
 	}
@@ -100,16 +200,16 @@ function mcm_get_category_ids( $mcm_atts = array() ) {
 								'post_type' => 'attachment',
 								'post_parent' => null,
 								'tax_query' => array(
-									'relation' => 'OR',
+//									'relation' => 'OR',
+//									array(
+////										'taxonomy' => $media_taxonomy,
+//										'taxonomy' => WP_MCM_POST_TAXONOMY,
+//										'field' => 'slug',
+//										'terms' => $media_categories
+//									),
 									array(
-//										'taxonomy' => $media_taxonomy,
-										'taxonomy' => WP_MCM_POST_TAXONOMY,
-										'field' => 'slug',
-										'terms' => $media_categories
-									),
-									array(
-//										'taxonomy' => $media_taxonomy,
-										'taxonomy' => WP_MCM_MEDIA_TAXONOMY,
+										'taxonomy' => $media_taxonomy,
+//										'taxonomy' => WP_MCM_MEDIA_TAXONOMY,
 										'field' => 'slug',
 										'terms' => $media_categories
 									)

@@ -19,7 +19,8 @@ class mcm_walker_category_filter extends Walker_CategoryDropdown{
 		$cat_name = apply_filters( 'list_cats', $category->name, $category );
 
 		if( ! isset( $args['value'] ) ) {
-			$args['value'] = ( $category->taxonomy != 'category' ? 'slug' : 'id' );
+//			$args['value'] = ( $category->taxonomy != 'category' ? 'slug' : 'id' );
+			$args['value'] = 'slug';
 		}
 
 		$value = ( $args['value']=='slug' ? $category->slug : $category->term_id );
@@ -414,18 +415,20 @@ function mcm_set_attachment_category( $post_ID ) {
 		return;
 	}
 
-	// Check WP_MCM_MEDIA_TAXONOMY
+	// Check $media_taxonomy
+	$media_taxonomy = mcm_get_media_taxonomy();
+
 	// Only add default if attachment doesn't have WP_MCM_MEDIA_TAXONOMY categories
-	if ( ! wp_get_object_terms( $post_ID, WP_MCM_MEDIA_TAXONOMY ) ) {
+	if ( ! wp_get_object_terms( $post_ID, $media_taxonomy ) ) {
 
 		// Get the default value
 		$default_category = mcm_get_option('wp_mcm_default_media_category');
 
 		// Check for valid $default_category
-		if ($default_category != '') {
+		if ($default_category != WP_MCM_OPTION_NONE) {
 
 			// Not set so add the $media_category taxonomy to this media post
-			$add_result = wp_set_object_terms($post_ID, $default_category, WP_MCM_MEDIA_TAXONOMY, true);
+			$add_result = wp_set_object_terms($post_ID, $default_category, $media_taxonomy, true);
 
 			// Check for error
 			if ( is_wp_error( $add_result ) ) {
@@ -435,26 +438,26 @@ function mcm_set_attachment_category( $post_ID ) {
 
 	}
 
-	// Check WP_MCM_POST_TAXONOMY
-	// Only add default if attachment doesn't have WP_MCM_POST_TAXONOMY categories
-	if ( ! wp_get_object_terms( $post_ID, WP_MCM_POST_TAXONOMY ) ) {
-
-		// Get the default value
-		$default_category = mcm_get_option('wp_mcm_default_post_category');
-
-		// Check for valid $default_category
-		if ($default_category != '') {
-
-			// Not set so add the $media_category taxonomy to this media post
-			$add_result = wp_set_object_terms($post_ID, $default_category, WP_MCM_POST_TAXONOMY, true);
-
-			// Check for error
-			if ( is_wp_error( $add_result ) ) {
-				return $add_result;
-			}
-		}
-
-	}
+//	// Check WP_MCM_POST_TAXONOMY
+//	// Only add default if attachment doesn't have WP_MCM_POST_TAXONOMY categories
+//	if ( ! wp_get_object_terms( $post_ID, WP_MCM_POST_TAXONOMY ) ) {
+//
+//		// Get the default value
+//		$default_category = mcm_get_option('wp_mcm_default_post_category');
+//
+//		// Check for valid $default_category
+//		if ($default_category != '') {
+//
+//			// Not set so add the $media_category taxonomy to this media post
+//			$add_result = wp_set_object_terms($post_ID, $default_category, WP_MCM_POST_TAXONOMY, true);
+//
+//			// Check for error
+//			if ( is_wp_error( $add_result ) ) {
+//				return $add_result;
+//			}
+//		}
+//
+//	}
 
 }
 add_action( 'add_attachment',  'mcm_set_attachment_category' );

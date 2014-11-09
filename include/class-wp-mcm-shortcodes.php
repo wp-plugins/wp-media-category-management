@@ -67,11 +67,23 @@ class WP_MCM_Shortcodes {
         return array (
 					array(
 						'label'       => 'WP_MCM',
-						'description' => __('The basic shortcode to show a gallery of all media for the categories specified in the parameter.', MCM_LANG),
+						'description' => __('The basic shortcode to show a gallery of all media for the taxonomy and categories specified in the parameters.', MCM_LANG),
 						'class'       => $this,
 						'parameters'  => '<ul>' .
-											__('<li><strong>category</strong>="&lt;slugs&gt;"<br/>', MCM_LANG) .
-											__('A comma separated list of category <code>slugs</code> to be used to filter the media to show.</li>', MCM_LANG) .
+											'<li>' .
+											__('<strong>taxonomy</strong>="&lt;slug&gt;"', MCM_LANG) .
+											'<br/>' .
+											__('The <code>slug</code> of the taxonomy to be used to filter the media to show.', MCM_LANG) .
+											'<br/>' .
+											sprintf(__('The default value is as defined in MCM Settings for <strong>Media Taxonomy To Use</strong>, currently defined as <code>%s</code>.', MCM_LANG), mcm_get_media_taxonomy()) .
+											'</li>' .
+											'<li>' .
+											__('<strong>category</strong>="&lt;slugs&gt;"', MCM_LANG) .
+											'<br/>' .
+											__('A comma separated list of category <code>slugs</code> to be used to filter the media to show.', MCM_LANG) .
+											'<br/>' .
+											sprintf(__('The default value is as defined in MCM Settings for <strong>Default Media Category</strong>, currently defined as <code>%s</code>.', MCM_LANG), mcm_get_option('wp_mcm_default_media_category')) .
+											'</li>' .
 										 '</ul>',
 						'function'    => 'wp_mcm_shortcode'
 					),
@@ -109,7 +121,7 @@ class WP_MCM_Shortcodes {
 			<thead>
 				<tr class="wp_mcm_shortcodes_row">
 					<th class="wp_mcm_shortcodes_cell" width="15%"><code>[SHORTCODE]</code>&nbsp;</th>
-					<th class="wp_mcm_shortcodes_cell"><?php echo __('Description', MCM_LANG); ?>&nbsp;</th>
+					<th class="wp_mcm_shortcodes_cell" width="25%"><?php echo __('Description', MCM_LANG); ?>&nbsp;</th>
 					<th class="wp_mcm_shortcodes_cell"><?php echo __('Parameters', MCM_LANG); ?>&nbsp;</th>
 				</tr>
 			</thead>
@@ -158,6 +170,7 @@ class WP_MCM_Shortcodes {
 
 		// Get the shortcode_attributes
 		$mcm_atts = shortcode_atts(array(
+			'taxonomy' => '',
 			'category' => '',
 		), $attr);
 
@@ -167,7 +180,7 @@ class WP_MCM_Shortcodes {
 		$this->debugMP('msg',__FUNCTION__ . ' content',esc_html($content));
 
 		// Get the id's to include in the gallery to show
-		$mcm_gallery_ids = mcm_get_category_ids($mcm_atts);
+		$mcm_gallery_ids = mcm_get_attachment_ids($mcm_atts);
 
 		// Use original attr to prepare gallery atts
 		$mcm_gallery_atts = 'include="' . $mcm_gallery_ids . '"';
