@@ -84,6 +84,13 @@ class WP_MCM_Shortcodes {
 											'<br/>' .
 											sprintf(__('The default value is as defined in MCM Settings for <strong>Default Media Category</strong>, currently defined as <code>%s</code>.', MCM_LANG), mcm_get_option('wp_mcm_default_media_category')) .
 											'</li>' .
+											'<li>' .
+											__('<strong>alternative_shortcode</strong>="&lt;alternative&gt;"', MCM_LANG) .
+											'<br/>' .
+											__('This parameter can be used to overrule the default <code>gallery</code> shortcode as used by WordPress and most plugins.', MCM_LANG) .
+											'<br/>' .
+											__('The default value is <code>gallery</code>.', MCM_LANG) .
+											'</li>' .
 										 '</ul>',
 						'function'    => 'wp_mcm_shortcode'
 					),
@@ -172,15 +179,22 @@ class WP_MCM_Shortcodes {
 		$mcm_atts = shortcode_atts(array(
 			'taxonomy' => '',
 			'category' => '',
+			'alternative_shortcode' => 'gallery',
 		), $attr);
 
 
 		$this->debugMP('pr',__FUNCTION__ . ' attributes',$attr);
-		$this->debugMP('pr',__FUNCTION__ . ' attributes',$mcm_atts);
 		$this->debugMP('msg',__FUNCTION__ . ' content',esc_html($content));
 
 		// Get the id's to include in the gallery to show
 		$mcm_gallery_ids = mcm_get_attachment_ids($mcm_atts);
+
+		// Check and use the alternative_shortcode
+		if (isset($mcm_atts['alternative_shortcode']) && $mcm_atts['alternative_shortcode'] != '') {
+			$mcm_alternative_shortcode = $mcm_atts['alternative_shortcode'];
+			unset($mcm_atts['alternative_shortcode']);
+		}
+		$this->debugMP('pr',__FUNCTION__ . ' alternative_shortcode= ' . $mcm_alternative_shortcode . ', attributes:',$mcm_atts);
 
 		// Use original attr to prepare gallery atts
 		$mcm_gallery_atts = 'include="' . $mcm_gallery_ids . '"';
@@ -191,7 +205,7 @@ class WP_MCM_Shortcodes {
 		}
 
 		// Do the shortcode translation
-		$mcm_gallery_shortcode = '[gallery ' . $mcm_gallery_atts . ']';
+		$mcm_gallery_shortcode = '[' . $mcm_alternative_shortcode . ' ' . $mcm_gallery_atts . ']';
 		$mcm_shortcode_output = do_shortcode($mcm_gallery_shortcode);
 
 		return $mcm_shortcode_output;

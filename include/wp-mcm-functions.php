@@ -14,16 +14,17 @@ function mcm_init_option_defaults() {
 	$wp_mcm_options = get_option(WP_MCM_OPTIONS_NAME);
 
 	// Only set defaults when the options are not set yet
-	if ( mcm_get_option('wp_mcm_toggle_assign') === false ) {
-		$wp_mcm_options['wp_mcm_toggle_assign']				= '1';
-		$wp_mcm_options['wp_mcm_media_taxonomy_to_use']		= WP_MCM_MEDIA_TAXONOMY;
-		$wp_mcm_options['wp_mcm_custom_taxonomy_name']		= '';
-		$wp_mcm_options['wp_mcm_use_post_taxonomy']			= '';
-		$wp_mcm_options['wp_mcm_use_default_category']		= '';
-		$wp_mcm_options['wp_mcm_default_media_category']	= WP_MCM_OPTION_NONE;
-		$wp_mcm_options['wp_mcm_default_post_category']		= '';
+	if ( mcm_get_option('wp_mcm_version') === false ) {
+		$wp_mcm_options['wp_mcm_toggle_assign']					= '1';
+		$wp_mcm_options['wp_mcm_media_taxonomy_to_use']			= WP_MCM_MEDIA_TAXONOMY;
+		$wp_mcm_options['wp_mcm_custom_taxonomy_name']			= '';
+		$wp_mcm_options['wp_mcm_custom_taxonomy_name_single']	= '';
+		$wp_mcm_options['wp_mcm_use_post_taxonomy']				= '';
+		$wp_mcm_options['wp_mcm_use_default_category']			= '';
+		$wp_mcm_options['wp_mcm_default_media_category']		= WP_MCM_OPTION_NONE;
+		$wp_mcm_options['wp_mcm_default_post_category']			= '';
 	} else {
-		// Compare version to migrate the options from pre-V1.2
+		// Compare previous version to migrate the options
 		$version_on_start = mcm_get_option('wp_mcm_version');
 		if ( version_compare($version_on_start,'1.2','<') ) {
 			// Check whether POST or MEDIA taxonomy was used before
@@ -34,6 +35,9 @@ function mcm_init_option_defaults() {
 				$wp_mcm_options['wp_mcm_media_taxonomy_to_use']		= WP_MCM_MEDIA_TAXONOMY;
 			}
 			$wp_mcm_options['wp_mcm_custom_taxonomy_name']		= '';
+		}
+		if ( version_compare($version_on_start,'1.3','<') ) {
+			$wp_mcm_options['wp_mcm_custom_taxonomy_name_single']	= '';
 		}
 	}
 
@@ -200,16 +204,8 @@ function mcm_get_attachment_ids( $mcm_atts = array() ) {
 								'post_type' => 'attachment',
 								'post_parent' => null,
 								'tax_query' => array(
-//									'relation' => 'OR',
-//									array(
-////										'taxonomy' => $media_taxonomy,
-//										'taxonomy' => WP_MCM_POST_TAXONOMY,
-//										'field' => 'slug',
-//										'terms' => $media_categories
-//									),
 									array(
 										'taxonomy' => $media_taxonomy,
-//										'taxonomy' => WP_MCM_MEDIA_TAXONOMY,
 										'field' => 'slug',
 										'terms' => $media_categories
 									)

@@ -19,7 +19,6 @@ class mcm_walker_category_filter extends Walker_CategoryDropdown{
 		$cat_name = apply_filters( 'list_cats', $category->name, $category );
 
 		if( ! isset( $args['value'] ) ) {
-//			$args['value'] = ( $category->taxonomy != 'category' ? 'slug' : 'id' );
 			$args['value'] = 'slug';
 		}
 
@@ -57,6 +56,56 @@ class mcm_walker_category_mediagridfilter extends Walker_CategoryDropdown {
 		$output .= '"}';
 	}
 
+}
+
+/**
+ *  mcm_walker_category_mediagrid_checklist
+ *
+ *  Based on /wp-includes/category-template.php
+ *
+ *  @since    1.3.0
+ *  @created  12/11/14
+ */
+
+class mcm_walker_category_mediagrid_checklist extends Walker 
+{
+	var $tree_type = 'category';
+	var $db_fields = array ('parent' => 'parent', 'id' => 'term_id'); 
+
+	function start_lvl( &$output, $depth = 0, $args = array() ) {
+		$indent = str_repeat("\t", $depth);
+		$output .= "$indent<ul class='children'>\n";
+	}
+
+	function end_lvl( &$output, $depth = 0, $args = array() ) {
+		$indent = str_repeat("\t", $depth);
+		$output .= "$indent</ul>\n";
+	}
+
+	function start_el( &$output, $category, $depth = 0, $args = array(), $id = 0 ) {
+		extract($args);
+
+		if ( empty($taxonomy) )
+			$taxonomy = 'category';
+
+		$name = 'tax_input['.$taxonomy.']';
+
+		$output .= "\n<li id='{$taxonomy}-{$category->term_id}'>";
+		$output .= '<label class="selectit">';
+		$output .= '<input value="' . $category->slug . '" ';
+		$output .= 'type="checkbox" ';
+		$output .= 'name="'.$name.'['. $category->slug.']" ';
+		$output .= 'id="in-'.$taxonomy.'-' . $category->term_id . '"';
+		$output .= checked( in_array( $category->term_id, $selected_cats ), true, false );
+		$output .= disabled( empty( $args['disabled'] ), false, false );
+		$output .= ' /> ';
+		$output .= esc_html( apply_filters('the_category', $category->name ));
+		$output .= '</label>';
+	}
+
+	function end_el( &$output, $category, $depth = 0, $args = array() ) {
+		$output .= "</li>\n";
+	}
 }
 
 /** Add a category filter */
