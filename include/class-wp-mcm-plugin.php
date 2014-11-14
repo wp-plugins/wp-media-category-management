@@ -364,7 +364,7 @@ class WP_MCM_Plugin {
 		$this->debugMP('msg',__FUNCTION__ . ' post_type = ' . $post_type);
 
 		// Only limit post taxonomy for attachments
-		if ( $post_type == 'attachment' ) {
+		if ( ($post_type == 'attachment') || ($post_id == 0) ) {
 
 			// get the arguments of the already-registered taxonomy
 			$category_args = get_taxonomy( WP_MCM_POST_TAXONOMY ); // returns an object

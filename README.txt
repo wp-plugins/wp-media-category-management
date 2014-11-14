@@ -4,7 +4,7 @@ Donate link: http://www.de-baat.nl/WP_MCM
 Tags: media library, bulk action, bulk toggle, toggle category, taxonomy, taxonomies, attachment, media category, media categories, media tag, media tags, media taxonomy, media taxonomies, media filter, media organizer, media types, media uploader, custom, media management, attachment management, files management, user experience, wp-admin, admin
 Requires at least: 4.0
 Tested up to: 4.0
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -16,11 +16,13 @@ It supports categories for media using either the existing post categories or a 
 The plugin supports easy category toggling on the media list page view and also bulk toggling for multiple media at once.
 It now also supports media taxonomies defined by other plugins.
 
+= Main Features =
+
 * Use post categories or dedicated media categories.
 * Control your media categories via admin the same way as post categories.
 * Bulk toggle any media taxonomy assignment from Media Library via admin.
 * Filter media files in Media Library by your custom taxonomies, both in list and grid view.
-* Use new shortcode to filter the media on galleries in posts.
+* Use new or existing shortcode to filter the media on galleries in posts.
 
 == Installation ==
 
@@ -77,6 +79,9 @@ Use the `[wp_mcm]` shortcode. Various shortcode uses are explained in the **WP M
 10. The post page showing the results of the example using the [wp-mcm category="mediafoto,medialogo"] shortcode.
 
 == Changelog ==
+
+= 1.3.1 =
+* Fixed issue with finding taxonomies to use
 
 = 1.3.0 =
 * Fixed issue with updating options.

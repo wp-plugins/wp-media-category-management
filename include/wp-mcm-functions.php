@@ -94,10 +94,10 @@ function mcm_get_posts_for_media_taxonomy( $taxonomy = '' ) {
 	$query  = "SELECT * FROM $wpdb->term_taxonomy AS tt ";
 	$query .= " WHERE tt.taxonomy = '$taxonomy' ";
 	$taxonomyTerms = $wpdb->get_results( $query );
-	mcm_debugMP('pr',__FUNCTION__ . ' taxonomy found ' . count($taxonomyTerms) . ' with query = ' . $query, $taxonomyTerms);
+	//mcm_debugMP('pr',__FUNCTION__ . ' taxonomy found ' . count($taxonomyTerms) . ' with query = ' . $query, $taxonomyTerms);
 
 	// Validate $taxonomyTerms found
-	if ( is_wp_error($taxonomyTerms)) {
+	if ( is_wp_error($taxonomyTerms) || (count($taxonomyTerms) == 0)) {
 		return array();
 	}
 
@@ -148,7 +148,7 @@ function mcm_get_media_taxonomies() {
 
 		// Get the taxonomy information
 		$mediaTaxonomy = get_taxonomy($taxonomySlug);
-		mcm_debugMP('pr',__FUNCTION__  . ' taxonomySlug found:' . $taxonomySlug . ', mediaTaxonomy found:', $mediaTaxonomy);
+		//mcm_debugMP('pr',__FUNCTION__  . ' taxonomySlug found:' . $taxonomySlug . ', mediaTaxonomy found:', $mediaTaxonomy);
 		$mediaTaxonomyData = array();
 		if ($mediaTaxonomy) {
 			$mediaTaxonomyData['object'] = $mediaTaxonomy;
