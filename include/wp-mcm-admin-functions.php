@@ -120,29 +120,33 @@ function mcm_add_category_filter() {
 		if ( $media_taxonomy != WP_MCM_POST_TAXONOMY ) {
 			$selected_value = isset( $_GET[$media_taxonomy] ) ? $_GET[$media_taxonomy] : '';
 			$dropdown_options = array(
-				'taxonomy'        => $media_taxonomy,
-				'name'            => $media_taxonomy,
-				'show_option_all' => __( 'View all categories', MCM_LANG ),
-				'selected'        => $selected_value,
-				'hide_empty'      => false,
-				'hierarchical'    => true,
-				'orderby'         => 'name',
-				'show_count'      => true,
-				'walker'          => new mcm_walker_category_filter(),
-				'value'           => 'slug'
+				'taxonomy'           => $media_taxonomy,
+				'name'               => $media_taxonomy,
+				'show_option_all'    => __( 'View all categories', MCM_LANG ),
+				'show_option_none'   => __( 'No categories', MCM_LANG ),
+				'option_none_value'  => WP_MCM_OPTION_NO_CAT,
+				'selected'           => $selected_value,
+				'hide_empty'         => false,
+				'hierarchical'       => true,
+				'orderby'            => 'name',
+				'show_count'         => true,
+				'walker'             => new mcm_walker_category_filter(),
+				'value'              => 'slug'
 			);
 		} else {
 			$selected_value = isset( $_GET['cat'] ) ? $_GET['cat'] : '';
 			$dropdown_options = array(
-				'taxonomy'        => $media_taxonomy,
-				'show_option_all' => __( 'View all categories', MCM_LANG ),
-				'selected'        => $selected_value,
-				'hide_empty'      => false,
-				'hierarchical'    => true,
-				'orderby'         => 'name',
-				'show_count'      => false,
-				'walker'          => new mcm_walker_category_filter(),
-				'value'           => 'id'
+				'taxonomy'           => $media_taxonomy,
+				'show_option_all'    => __( 'View all categories', MCM_LANG ),
+				'show_option_none'   => __( 'No categories', MCM_LANG ),
+				'option_none_value'  => WP_MCM_OPTION_NO_CAT,
+				'selected'           => $selected_value,
+				'hide_empty'         => false,
+				'hierarchical'       => true,
+				'orderby'            => 'name',
+				'show_count'         => false,
+				'walker'             => new mcm_walker_category_filter(),
+				'value'              => 'id'
 			);
 		}
 		mcm_debugMP('pr',__FUNCTION__ . ' selected_value = ' . $selected_value . ', dropdown_options', $dropdown_options);
@@ -248,6 +252,38 @@ function mcm_create_sendback_url() {
 
 }
 
+
+/**
+ *  mcm_get_terms_values
+ *
+ *  Get an array of term values, which type is determined by the parameter
+ *
+ *  @since    1.4.0
+ *  @created  13/12/14
+ */
+function mcm_get_terms_values( $keys = 'ids') { 
+
+		// Get media taxonomy
+		$media_taxonomy = mcm_get_media_taxonomy();
+		mcm_debugMP('msg',__FUNCTION__ . ' media_taxonomy = ' . $media_taxonomy);
+
+		$media_terms = get_terms($media_taxonomy, array(
+			'hide_empty'       => 0,
+			'fields'           => 'id=>slug',
+			));
+		mcm_debugMP('pr', __FUNCTION__ . ' media_terms for :' . $media_taxonomy, $media_terms);
+
+		$media_values = array();
+		foreach ($media_terms as $key => $value) {
+			if ($keys == 'ids') {
+				$media_values[] = $key;
+			} else {
+				$media_values[] = $value;
+			}
+		}
+		return $media_values;
+
+}
 
 /**
  *  mcm_media_row_actions
@@ -537,13 +573,26 @@ function mcm_ajax_query_attachments() {
 
 	$query['tax_query'] = array( 'relation' => 'AND' );
 
-	foreach ( $taxonomies as $taxonomy ) {				
-		if ( isset( $query[$taxonomy] ) && is_numeric( $query[$taxonomy] ) ) {
-			array_push( $query['tax_query'], array(
-				'taxonomy' => $taxonomy,
-				'field'    => 'id',
-				'terms'    => $query[$taxonomy]
-			));	
+	foreach ( $taxonomies as $taxonomy ) {
+		if ( isset( $query[$taxonomy] ) ) {
+			// Filter a specific category
+			if ( is_numeric( $query[$taxonomy] ) ) {
+				array_push( $query['tax_query'], array(
+					'taxonomy' => $taxonomy,
+					'field'    => 'id',
+					'terms'    => $query[$taxonomy]
+				));	
+			}
+			// Filter No category
+			if ( $query[$taxonomy] == WP_MCM_OPTION_NO_CAT ) {
+				$all_terms_ids = mcm_get_terms_values('ids');
+				array_push( $query['tax_query'], array(
+					'taxonomy' => $taxonomy,
+					'field'    => 'id',
+					'terms'    => $all_terms_ids,
+					'operator' => 'NOT IN',
+				));	
+			}
 		}
 		unset ( $query[$taxonomy] );
 	}
