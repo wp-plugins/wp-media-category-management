@@ -14,7 +14,7 @@
  * Plugin Name: WP Media Category Management
  * Plugin URI:  http://www.de-baat.nl/WP_MCM
  * Description: A plugin to provide bulk category management functionality for media in WordPress sites.
- * Version:     1.4.0
+ * Version:     1.4.1
  * Author:      De B.A.A.T. <wp-mcm@de-baat.nl>
  * Author URI:  http://www.de-baat.nl/WP_MCM
  * Text Domain: wp-mcm-locale
@@ -29,7 +29,7 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 define( 'WP_MCM_LINK',					'http://www.de-baat.nl/WP_MCM' );
-define( 'WP_MCM_VERSION',				'1.4.0' );
+define( 'WP_MCM_VERSION',				'1.4.1' );
 define( 'WP_MCM_OPTIONS_NAME',			'wp-media-category-management-options' ); // Option name for save settings
 define( 'WP_MCM_OPTION_NONE',			'uncategorized' );
 define( 'WP_MCM_POST_TAXONOMY',			'category' );
@@ -37,9 +37,9 @@ define( 'WP_MCM_MEDIA_TAXONOMY',		'category_media' );
 define( 'WP_MCM_ACTION_BULK_TOGGLE',	'bulk_toggle' );
 define( 'WP_MCM_OPTION_NO_CAT',			'no_category' );
 
-define( 'WP_MCM_URL', 			plugins_url('', __FILE__) );
-define( 'WP_MCM_DIR', 			rtrim(plugin_dir_path(__FILE__), '/') );
-define( 'WP_MCM_BASENAME', 		dirname(plugin_basename(__FILE__)) );
+define( 'WP_MCM_URL',					plugins_url('', __FILE__) );
+define( 'WP_MCM_DIR',					rtrim(plugin_dir_path(__FILE__), '/') );
+define( 'WP_MCM_BASENAME',				dirname(plugin_basename(__FILE__)) );
 
 define( 'MCM_LANG', 'wp-mcm' );
 

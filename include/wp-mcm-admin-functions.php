@@ -308,6 +308,7 @@ function mcm_media_row_actions($row_actions, $media, $detached) {
 		$actionlink_url    = mcm_create_sendback_url();
 		$actionlink_url    = add_query_arg( 'media', $media->ID, $actionlink_url );
 		$actionlink_url    = add_query_arg( 'action', WP_MCM_ACTION_BULK_TOGGLE, $actionlink_url );
+		$actionlink_prefix = __( 'Toggle ', MCM_LANG );
 
 		// Generate an action text and link for each term
 		foreach ($media_terms as $term) {
@@ -316,7 +317,9 @@ function mcm_media_row_actions($row_actions, $media, $detached) {
 			$actionlink  = add_query_arg( 'bulk_tax_id', $term->slug, $actionlink );
 			// Create a clickable label for the generated url
 			$actionlink  = '<a class="submitdelete" href="' . wp_nonce_url( $actionlink );
-			$actionlink .= '">' . __( 'Toggle ', MCM_LANG );
+//			$actionlink .= '">' . __( 'Toggle ', MCM_LANG );
+			$actionlink .= '">' . $actionlink_prefix;
+			$actionlink_prefix = ' ';
 			$actionlink .= '[<em>' . $term->name . '</em>]';
 			$actionlink .= '</a>';
 			$row_actions[] = $actionlink;
