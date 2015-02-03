@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WP_MCM 0.1.0\n"
-"Report-Msgid-Bugs-To: http://www.de-baat.nl/WP_MCM\n"
+"Report-Msgid-Bugs-To: https://www.de-baat.nl/WP_MCM\n"
 "POT-Creation-Date: 2014-11-09 15:17+0100\n"
 "PO-Revision-Date: 2014-11-09 15:17+0100\n"
 "Last-Translator: De BAAT <De_BAAT@de-baat.nl>\n"

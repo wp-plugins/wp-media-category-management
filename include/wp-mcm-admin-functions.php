@@ -5,7 +5,7 @@
  * @package   WP_MediaCategoryManagement\AdminFunctions
  * @author    De B.A.A.T. <wp-mcm@de-baat.nl>
  * @license   GPL-3.0+
- * @link      http://www.de-baat.nl/WP_MCM
+ * @link      https://www.de-baat.nl/WP_MCM
  * @copyright 2014 De B.A.A.T.
  */
 
@@ -352,15 +352,15 @@ function mcm_is_action_bulk_toggle() {
 
 /*
  * This work is based on the plugin FoxRunSoftware Custom Bulk Action Demo
- * Plugin URI: http://www.foxrunsoftware.net/articles/wordpress/add-custom-bulk-action/
+ * Plugin URI: https://www.foxrunsoftware.net/articles/wordpress/add-custom-bulk-action/
  * Description: A working demonstration of a custom bulk action
  * Author: Justin Stern
- * Author URI: http://www.foxrunsoftware.net
+ * Author URI: https://www.foxrunsoftware.net
  * Version: 0.1
 
  * 	Copyright: © 2012 Justin Stern (email : justin@foxrunsoftware.net)
  * 	License: GNU General Public License v3.0
- * 	License URI: http://www.gnu.org/licenses/gpl-3.0.html
+ * 	License URI: https://www.gnu.org/licenses/gpl-3.0.html
  */
 
 add_action( 'admin_footer-upload.php',	'mcm_custom_bulk_admin_footer');
@@ -426,7 +426,7 @@ function mcm_custom_bulk_admin_footer() {
 /**
  * Step 2: handle the custom Bulk Action
  * 
- * Based on the post http://wordpress.stackexchange.com/questions/29822/custom-bulk-action
+ * Based on the post https://wordpress.stackexchange.com/questions/29822/custom-bulk-action
  */
 function mcm_custom_bulk_action() {
 

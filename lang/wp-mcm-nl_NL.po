@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Media Category Management v1.4.0\n"
-"Report-Msgid-Bugs-To: http://www.de-baat.nl/WP_MCM\n"
+"Project-Id-Version: WP Media Category Management v1.4.2\n"
+"Report-Msgid-Bugs-To: https://www.de-baat.nl/WP_MCM\n"
 "POT-Creation-Date: 2013-08-24 11:37+0100\n"
-"PO-Revision-Date: 2014-12-13 22:52:07+0000\n"
+"PO-Revision-Date: 2015-02-03 20:35:11+0000\n"
 "Last-Translator: DeBAAT <De_BAAT@de-baat.nl>\n"
 "Language-Team: De B.A.A.T. <wp-mcm@de-baat.nl>\n"
 "MIME-Version: 1.0\n"
@@ -177,13 +177,13 @@ msgstr "<br/>Als je ideeën hebt om deze plugin te verbeteren, laat dan een reac
 msgid "View all categories"
 msgstr "Toon alle categorieën"
 
-#: include/wp-mcm-admin-functions.php:319
-#: include/wp-mcm-admin-functions.php:411
+#: include/wp-mcm-admin-functions.php:311
+#: include/wp-mcm-admin-functions.php:414
 #@ wp-mcm
 msgid "Toggle "
 msgstr "Toggle "
 
-#: include/wp-mcm-admin-functions.php:485
+#: include/wp-mcm-admin-functions.php:488
 #, php-format
 #@ wp-mcm
 msgid "Media bulk toggled."
@@ -206,8 +206,8 @@ msgstr "WP Media Category Management"
 #. translators: plugin header field 'AuthorURI'
 #: wp-media-category-management.php:0
 #@ wp-mcm
-msgid "http://www.de-baat.nl/WP_MCM"
-msgstr "http://www.de-baat.nl/WP_MCM"
+msgid "https://www.de-baat.nl/WP_MCM"
+msgstr "https://www.de-baat.nl/WP_MCM"
 
 #. translators: plugin header field 'Author'
 #: wp-media-category-management.php:0
@@ -421,6 +421,6 @@ msgstr "Zonder categoriën"
 #. translators: plugin header field 'Version'
 #: wp-media-category-management.php:0
 #@ wp-mcm
-msgid "1.4.0"
-msgstr "1.4.0"
+msgid "1.4.2"
+msgstr "1.4.2"
 

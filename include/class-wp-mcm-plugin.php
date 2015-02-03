@@ -5,7 +5,7 @@
  * @package   WP_MediaCategoryManagement
  * @author    De B.A.A.T. <wp-mcm@de-baat.nl>
  * @license   GPL-3.0+
- * @link      http://www.de-baat.nl/WP_MCM
+ * @link      https://www.de-baat.nl/WP_MCM
  * @copyright 2014 De B.A.A.T.
  */
 
@@ -56,7 +56,7 @@ class WP_MCM_Plugin {
 		$this->menu_title = 'WP MCM';
 		$this->capability = 'edit_theme_options';
 		$this->menu_slug = 'wp-mcm';
-		$this->plugin_icon = WP_MCM_URL . '/assets/icon-wp-mcm-18.png';
+		$this->plugin_icon = 'dashicons-list-view';
 
 		// Load plugin text domain
 		add_action( 'init',						array( $this, 'mcm_init' ) );
