@@ -3,8 +3,8 @@ Contributors: DeBAAT
 Donate link: https://www.de-baat.nl/WP_MCM
 Tags: media library, bulk action, bulk toggle, toggle category, taxonomy, taxonomies, attachment, media category, media categories, media tag, media tags, media taxonomy, media taxonomies, media filter, media organizer, media types, media uploader, custom, media management, attachment management, files management, user experience, wp-admin, admin
 Requires at least: 4.0
-Tested up to: 4.1
-Stable tag: 1.4.2
+Tested up to: 4.1.1
+Stable tag: 1.4.3
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -80,6 +80,10 @@ Use the `[wp_mcm]` shortcode. Various shortcode uses are explained in the **WP M
 
 == Changelog ==
 
+= 1.4.3 =
+* Tested up to WP 4.1.1.
+* Added filter support for MCM categories when adding media to new post.
+
 = 1.4.2 =
 * Fixed issue with display of filter when adding media in posts and pages.
 * Changed menu icon into a dashicon to improve visibility.
@@ -127,6 +131,9 @@ Use the `[wp_mcm]` shortcode. Various shortcode uses are explained in the **WP M
 * First version starting the plugin.
 
 == Upgrade Notice ==
+
+= 1.4.3 =
+* Fixed some issues, see change log.
 
 = 1.4.2 =
 * Fixed some issues, see change log.
