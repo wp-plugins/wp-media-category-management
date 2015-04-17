@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Media Category Management v1.4.4\n"
+"Project-Id-Version: WP Media Category Management v1.4.5\n"
 "Report-Msgid-Bugs-To: https://www.de-baat.nl/WP_MCM\n"
 "POT-Creation-Date: 2013-08-24 11:37+0100\n"
-"PO-Revision-Date: 2015-04-06 07:07:59+0000\n"
+"PO-Revision-Date: 2015-04-17 05:41:37+0000\n"
 "Last-Translator: DeBAAT <De_BAAT@de-baat.nl>\n"
 "Language-Team: De B.A.A.T. <wp-mcm@de-baat.nl>\n"
 "MIME-Version: 1.0\n"
@@ -421,6 +421,6 @@ msgstr "Zonder categoriën"
 #. translators: plugin header field 'Version'
 #: wp-media-category-management.php:0
 #@ wp-mcm
-msgid "1.4.4"
-msgstr "1.4.4"
+msgid "1.4.5"
+msgstr "1.4.5"
 

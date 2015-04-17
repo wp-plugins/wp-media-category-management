@@ -4,7 +4,7 @@ Donate link: https://www.de-baat.nl/WP_MCM
 Tags: media library, bulk action, bulk toggle, toggle category, taxonomy, taxonomies, attachment, media category, media categories, media tag, media tags, media taxonomy, media taxonomies, media filter, media organizer, media types, media uploader, custom, media management, attachment management, files management, user experience, wp-admin, admin
 Requires at least: 4.0
 Tested up to: 4.1.1
-Stable tag: 1.4.4
+Stable tag: 1.4.5
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -23,6 +23,7 @@ It now also supports media taxonomies defined by other plugins.
 * Bulk toggle any media taxonomy assignment from Media Library via admin.
 * Filter media files in Media Library by your custom taxonomies, both in list and grid view.
 * Use new or existing shortcode to filter the media on galleries in posts.
+* Use a default category while uploading (see FAQ section). 
 
 == Installation ==
 
@@ -61,6 +62,13 @@ First enable the option "**Use Default Category**" on the **MCM Settings** page.
 When enabled and a media attachment has no category defined yet, the value of "**Default Media Category**" will be assigned automatically when a media attachment is added or edited.
 The default value is also used in the `[wp_mcm]` shortcode to automatically filter the attachments to be shown.
 
+= Steps to assign a default category while uploading: =
+
+1. Enable "Use default category" in Settings
+1. Define the default category to use
+1. Upload the media for this category
+1. Repeat from step 2 for other categories
+
 = How do I use the shortcode of this plugin? =
 
 Use the `[wp_mcm]` shortcode. Various shortcode uses are explained in the **WP MCM -> Shortcodes** page.
@@ -79,6 +87,9 @@ Use the `[wp_mcm]` shortcode. Various shortcode uses are explained in the **WP M
 10. The post page showing the results of the example using the [wp-mcm category="mediafoto,medialogo"] shortcode.
 
 == Changelog ==
+
+= 1.4.5 =
+* Added Serbo-Croatian translation (thanks Andrijana Nikolic [andrijanan@webhostinggeeks.com].
 
 = 1.4.4 =
 * Added French translation (thanks Pierre).
