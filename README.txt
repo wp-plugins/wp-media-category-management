@@ -3,8 +3,8 @@ Contributors: DeBAAT
 Donate link: https://www.de-baat.nl/WP_MCM
 Tags: media library, bulk action, bulk toggle, toggle category, taxonomy, taxonomies, attachment, media category, media categories, media tag, media tags, media taxonomy, media taxonomies, media filter, media organizer, media types, media uploader, custom, media management, attachment management, files management, user experience, wp-admin, admin
 Requires at least: 4.0
-Tested up to: 4.1.1
-Stable tag: 1.4.5
+Tested up to: 4.2.1
+Stable tag: 1.5.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -14,7 +14,7 @@ A plugin to provide bulk category management functionality for media in WordPres
 This WordPress plugin will ease the management of media categories, including bulk actions.
 It supports categories for media using either the existing post categories or a dedicated media_category custom taxonomy.
 The plugin supports easy category toggling on the media list page view and also bulk toggling for multiple media at once.
-It now also supports media taxonomies defined by other plugins.
+It now also supports post tags and media taxonomies defined by other plugins.
 
 = Main Features =
 
@@ -87,6 +87,10 @@ Use the `[wp_mcm]` shortcode. Various shortcode uses are explained in the **WP M
 10. The post page showing the results of the example using the [wp-mcm category="mediafoto,medialogo"] shortcode.
 
 == Changelog ==
+
+= 1.5.0 =
+* Tested up to WP 4.2.1.
+* Added support for tags also used by posts.
 
 = 1.4.5 =
 * Added Serbo-Croatian translation (thanks Andrijana Nikolic [andrijanan@webhostinggeeks.com].

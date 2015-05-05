@@ -76,6 +76,7 @@ class WP_MCM_Plugin {
 
 		// Some filters and action to process categories
 		add_filter('attachment_fields_to_edit',                 array($this,'mcm_attachment_fields_to_edit'    ), 10, 2);
+//		add_filter('attachment_fields_to_save',                 array($this,'mcm_attachment_fields_to_save'    ), 10, 2);
 		add_action('wp_ajax_save-attachment-compat',            array($this,'mcm_save_attachment_compat'       ), 0    );
 		add_filter('request',                                   array($this,'mcm_request'                      )       );
 
@@ -226,6 +227,12 @@ class WP_MCM_Plugin {
 			$this->mcm_set_media_taxonomy_settings();
 			register_taxonomy_for_object_type( WP_MCM_POST_TAXONOMY, 'attachment' );
 		}
+
+		// Register WP_MCM_TAGS_TAXONOMY for attachments only if explicitly desired
+		if ($wp_mcm_media_taxonomy_to_use == WP_MCM_TAGS_TAXONOMY) {
+			//$this->mcm_set_media_taxonomy_settings();
+			register_taxonomy_for_object_type( WP_MCM_TAGS_TAXONOMY, 'attachment' );
+		}
 	}
 
 	/** Check whether this search is for NO Category */
@@ -258,7 +265,11 @@ class WP_MCM_Plugin {
 
 	/** Implement the request to filter media without category */
 	function mcm_request($query_args) {
-		$this->debugMP('pr', __FUNCTION__ . ' query = ', $query_args);
+//		$this->debugMP('pr', __FUNCTION__ . ' query = ', $query_args);
+
+		// Get media taxonomy
+		$media_taxonomy = mcm_get_media_taxonomy();
+		$this->debugMP('pr',__FUNCTION__ . ' taxonomy = ' . $media_taxonomy . ' query_args = ', $query_args);
 
 		$mediaCategory = $this->mcm_get_no_category_search();
 		if ($mediaCategory != '') {
@@ -276,7 +287,15 @@ class WP_MCM_Plugin {
 
 			// Reset the search query parameters to search for all attachments
 			$query_args[$mediaCategory] = 0;
-
+		} else {
+			// Check for filtering tags
+			if ($media_taxonomy == WP_MCM_TAGS_TAXONOMY) {
+				// Fix the search settings to search for NO Category
+				if ( isset( $_REQUEST[WP_MCM_TAGS_TAXONOMY] ) && ( $_REQUEST[WP_MCM_TAGS_TAXONOMY] != WP_MCM_OPTION_ALL_CAT) ) {
+					$query_args['tag'] = $_REQUEST[WP_MCM_TAGS_TAXONOMY];
+				}
+				$this->debugMP('pr',__FUNCTION__ . ' Reworked query_args for tags to: ', $query_args);
+			}
 		}
 
 		return $query_args;
@@ -311,17 +330,31 @@ class WP_MCM_Plugin {
 		foreach ( get_attachment_taxonomies($post->ID) as $taxonomy ) {
 
 			$t = (array) get_taxonomy($taxonomy);
-			if ( ! $t['public'] || ! $t['show_ui'] )
+			if ( ! $t['public'] || ! $t['show_ui'] ) {
 				continue;
-			if ( empty($t['label']) )
+			}
+			if ( empty($t['label']) ) {
 				$t['label'] = $taxonomy;
-			if ( empty($t['args']) )
+			}
+			if ( empty($t['args']) ) {
 				$t['args'] = array();
+			}
+
+			$terms = get_object_term_cache( $post->ID, $taxonomy );
+			if ( false === $terms ) {
+				$terms = wp_get_object_terms($post->ID, $taxonomy, $t['args']);
+			}
+
+			// Get the values in a list
+			$values = array();
+			foreach ( $terms as $term ) {
+				$values[] = $term->slug;
+			}
+			$t['value'] = join(', ', $values);
 
 			$t['show_in_edit'] = false;
 
-			if ( $t['hierarchical'] ) 
-			{
+			if ( ( $t['hierarchical'] ) || ( $taxonomy == WP_MCM_TAGS_TAXONOMY ) ) {
 				ob_start();
 
 					wp_terms_checklist( $post->ID,
@@ -331,10 +364,11 @@ class WP_MCM_Plugin {
 											)
 						);
 
-					if ( ob_get_contents() != false )
+					if ( ob_get_contents() != false ) {
 						$html = '<ul class="term-list">' . ob_get_contents() . '</ul>';
-					else
+					} else {
 						$html = '<ul class="term-list"><li>No ' . $t['label'] . '</li></ul>';
+					}
 
 				ob_end_clean();
 
@@ -347,6 +381,15 @@ class WP_MCM_Plugin {
 
 		return $form_fields;
 
+	}
+
+	// Save tag field from attachment edit menu
+	function mcm_attachment_fields_to_save($post, $attachment) {
+		$tags = esc_attr($_POST['attachments'][$post['ID']]['tags']);
+
+		$tag_arr = explode(',', $tags);
+		wp_set_object_terms( $post['ID'], $tag_arr, 'post_tag' );
+		return $post;
 	}
 
 	/** 
@@ -444,7 +487,7 @@ class WP_MCM_Plugin {
 
 	}
 
-	/** change default update_count_callback for category taxonomy */
+	/** change default update_count_callback for category and tags taxonomies */
 	function mcm_change_category_update_count_callback() {
 		global $wp_taxonomies;
 
@@ -453,13 +496,20 @@ class WP_MCM_Plugin {
 		$media_taxonomy = mcm_get_media_taxonomy();
 		$this->debugMP('msg',__FUNCTION__ . ' taxonomy = ' . $media_taxonomy);
 
+		// Reset count_callback for WP_MCM_POST_TAXONOMY
 		if ( $media_taxonomy == WP_MCM_POST_TAXONOMY ) {
-			if ( ! taxonomy_exists( WP_MCM_POST_TAXONOMY ) ) {
-				return false;
+			if ( taxonomy_exists( WP_MCM_POST_TAXONOMY ) ) {
+				$new_arg = &$wp_taxonomies[WP_MCM_POST_TAXONOMY]->update_count_callback;
+				$new_arg = 'mcm_update_count_callback';
 			}
+		}
 
-			$new_arg = &$wp_taxonomies[WP_MCM_POST_TAXONOMY]->update_count_callback;
-			$new_arg = 'mcm_update_count_callback';
+		// Reset count_callback for WP_MCM_TAGS_TAXONOMY
+		if ( $media_taxonomy == WP_MCM_TAGS_TAXONOMY ) {
+			if ( taxonomy_exists( WP_MCM_TAGS_TAXONOMY ) ) {
+				$new_arg = &$wp_taxonomies[WP_MCM_TAGS_TAXONOMY]->update_count_callback;
+				$new_arg = 'mcm_update_count_callback';
+			}
 		}
 	}
 
@@ -475,12 +525,18 @@ class WP_MCM_Plugin {
 			$media_taxonomy = mcm_get_media_taxonomy();
 			$this->debugMP('msg',__FUNCTION__ . ' taxonomy = ' . $media_taxonomy);
 
+			// Only show_count when no Post or Tag taxonomy
+			if (( $media_taxonomy == WP_MCM_POST_TAXONOMY ) || ( $media_taxonomy == WP_MCM_TAGS_TAXONOMY )) {
+				$show_count = false;
+			} else {
+				$show_count = true;
+			}
 			$dropdown_options = array(
 				'taxonomy'        => $media_taxonomy,
 				'hide_empty'      => false,
 				'hierarchical'    => true,
 				'orderby'         => 'name',
-				'show_count'      => ( $media_taxonomy == WP_MCM_POST_TAXONOMY ) ? false : true,
+				'show_count'      => $show_count,
 				'walker'          => new mcm_walker_category_mediagridfilter(),
 				'value'           => 'id',
 				'echo'            => false
@@ -489,14 +545,16 @@ class WP_MCM_Plugin {
 			$attachment_terms = preg_replace( array( "/<select([^>]*)>/", "/<\/select>/" ), "", $attachment_terms );
 
 			// Add an attachment_terms for No category
-			$no_category_term = ' ,{"term_id":"' . WP_MCM_OPTION_NO_CAT . '","term_name":"' . __( 'No categories', MCM_LANG ) . '"}';
+			$no_categories  = ( $media_taxonomy == WP_MCM_TAGS_TAXONOMY ) ? __( 'No tags', MCM_LANG ) : __( 'No categories', MCM_LANG );
+			$all_categories = ( $media_taxonomy == WP_MCM_TAGS_TAXONOMY ) ? __( 'View all tags', MCM_LANG ) : __( 'View all categories', MCM_LANG );
+			$no_category_term = ' ,{"term_id":"' . WP_MCM_OPTION_NO_CAT . '","term_name":"' . $no_categories . '"}';
 			$attachment_terms = $no_category_term . substr( $attachment_terms, 1 );
 			$this->debugMP('msg',__FUNCTION__ . ' attachment_terms = !' . $attachment_terms . '!');
 
 			echo '<script type="text/javascript">';
 			echo '/* <![CDATA[ */';
 			echo 'var mcm_taxonomies = {"' . $media_taxonomy . '":';
-			echo     '{"list_title":"' . html_entity_decode( __( 'View all categories', MCM_LANG ), ENT_QUOTES, 'UTF-8' ) . '",';
+			echo     '{"list_title":"' . html_entity_decode( $all_categories, ENT_QUOTES, 'UTF-8' ) . '",';
 			echo       '"term_list":[' . substr( $attachment_terms, 2 ) . ']}};';
 			echo '/* ]]> */';
 			echo '</script>';
@@ -803,9 +861,11 @@ class WP_MCM_Plugin {
 		$HTML .= '<br/>';
 		$HTML .= ' ' . __('(P) means that the taxonomy is also used for posts.', MCM_LANG);
 		$HTML .= '<br/>';
+		$HTML .= ' ' . __('(T) means that the taxonomy is also used as tags for posts.', MCM_LANG);
+		$HTML .= '<br/>';
 		$HTML .= ' ' . __('(*) means that the taxonomy may have been registered previously, e.g. by another plugin.', MCM_LANG);
 		$HTML .= '<br/>';
-		$HTML .= ' ' . __('(#<strong>X</strong>) means that the taxonomy is currently assigned to <strong>X</strong> attachments.', MCM_LANG);
+		$HTML .= ' ' . __('[#<strong>X</strong>] means that the taxonomy is currently assigned to <strong>X</strong> attachments.', MCM_LANG);
 		$HTML .= '</span>';
 		echo $HTML;
 		return;

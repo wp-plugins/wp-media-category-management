@@ -148,19 +148,23 @@ function mcm_get_media_taxonomies() {
 
 		// Get the taxonomy information
 		$mediaTaxonomy = get_taxonomy($taxonomySlug);
-		//mcm_debugMP('pr',__FUNCTION__  . ' taxonomySlug found:' . $taxonomySlug . ', mediaTaxonomy found:', $mediaTaxonomy);
+		mcm_debugMP('pr',__FUNCTION__  . ' taxonomySlug found:' . $taxonomySlug . ', mediaTaxonomy found:', $mediaTaxonomy);
 		$mediaTaxonomyData = array();
 		if ($mediaTaxonomy) {
 			$mediaTaxonomyData['object'] = $mediaTaxonomy;
 			$mediaTaxonomyData['name']   = $mediaTaxonomy->name;
-			$mediaTaxonomyData['label']  = $mediaTaxonomy->label . ' (#' . $countMediaPosts . ')';
+			$mediaTaxonomyData['label']  = $mediaTaxonomy->label . ' [#' . $countMediaPosts . ']';
 			if (is_object_in_taxonomy('post', $taxonomySlug)) {
-				$mediaTaxonomyData['label'] = '(P) ' . $mediaTaxonomyData['label'];
+				if ($taxonomySlug == WP_MCM_TAGS_TAXONOMY) {
+					$mediaTaxonomyData['label'] = '(T) ' . $mediaTaxonomyData['label'];
+				} else {
+					$mediaTaxonomyData['label'] = '(P) ' . $mediaTaxonomyData['label'];
+				}
 			}
 		} else {
 			$mediaTaxonomyData['object'] = false;
 			$mediaTaxonomyData['name']   = $taxonomySlug;
-			$mediaTaxonomyData['label']  = '(*) ' . $taxonomySlug . ' (#' . $countMediaPosts . ')';
+			$mediaTaxonomyData['label']  = '(*) ' . $taxonomySlug . ' [#' . $countMediaPosts . ']';
 		}
 		// Only add taxonomy when either attachments found OR it is for attachments
 		//mcm_debugMP('msg',__FUNCTION__  . ' taxonomySlug: ' . $taxonomySlug . ', tested for attachment with is_object_in_taxonomy found:' . is_object_in_taxonomy('attachment', $taxonomySlug));
@@ -180,7 +184,6 @@ function mcm_get_media_taxonomy() {
 
 }
 
-/** Custom update_count_callback */
 function mcm_get_attachment_ids( $mcm_atts = array() ) {
 
 	// Get media taxonomy and use default category value

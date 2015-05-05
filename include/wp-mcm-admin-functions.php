@@ -85,8 +85,9 @@ class mcm_walker_category_mediagrid_checklist extends Walker
 	function start_el( &$output, $category, $depth = 0, $args = array(), $id = 0 ) {
 		extract($args);
 
-		if ( empty($taxonomy) )
+		if ( empty($taxonomy) ) {
 			$taxonomy = 'category';
+		}
 
 		$name = 'tax_input['.$taxonomy.']';
 
@@ -117,37 +118,59 @@ function mcm_add_category_filter() {
 		$media_taxonomy = mcm_get_media_taxonomy();
 		mcm_debugMP('pr',__FUNCTION__ . ' taxonomy = ' . $media_taxonomy);
 
-		if ( $media_taxonomy != WP_MCM_POST_TAXONOMY ) {
-			$selected_value = isset( $_GET[$media_taxonomy] ) ? $_GET[$media_taxonomy] : '';
-			$dropdown_options = array(
-				'taxonomy'           => $media_taxonomy,
-				'name'               => $media_taxonomy,
-				'show_option_all'    => __( 'View all categories', MCM_LANG ),
-				'show_option_none'   => __( 'No categories', MCM_LANG ),
-				'option_none_value'  => WP_MCM_OPTION_NO_CAT,
-				'selected'           => $selected_value,
-				'hide_empty'         => false,
-				'hierarchical'       => true,
-				'orderby'            => 'name',
-				'show_count'         => true,
-				'walker'             => new mcm_walker_category_filter(),
-				'value'              => 'slug'
-			);
-		} else {
-			$selected_value = isset( $_GET['cat'] ) ? $_GET['cat'] : '';
-			$dropdown_options = array(
-				'taxonomy'           => $media_taxonomy,
-				'show_option_all'    => __( 'View all categories', MCM_LANG ),
-				'show_option_none'   => __( 'No categories', MCM_LANG ),
-				'option_none_value'  => WP_MCM_OPTION_NO_CAT,
-				'selected'           => $selected_value,
-				'hide_empty'         => false,
-				'hierarchical'       => true,
-				'orderby'            => 'name',
-				'show_count'         => false,
-				'walker'             => new mcm_walker_category_filter(),
-				'value'              => 'id'
-			);
+		// Set options depending on type of taxonomy chosen
+		//if ( $media_taxonomy != WP_MCM_POST_TAXONOMY ) {
+		switch ($media_taxonomy) {
+			case WP_MCM_TAGS_TAXONOMY:
+				$selected_value = isset( $_GET[$media_taxonomy] ) ? $_GET[$media_taxonomy] : '';
+				$dropdown_options = array(
+					'taxonomy'           => $media_taxonomy,
+					'name'               => $media_taxonomy,
+					'show_option_all'    => __( 'View all tags', MCM_LANG ),
+					'show_option_none'   => __( 'No tags', MCM_LANG ),
+					'option_none_value'  => WP_MCM_OPTION_NO_CAT,
+					'selected'           => $selected_value,
+					'hide_empty'         => false,
+					'hierarchical'       => true,
+					'orderby'            => 'name',
+					'show_count'         => false,
+					'walker'             => new mcm_walker_category_filter(),
+					'value'              => 'slug'
+				);
+				break;
+			case WP_MCM_POST_TAXONOMY:
+				$selected_value = isset( $_GET['cat'] ) ? $_GET['cat'] : '';
+				$dropdown_options = array(
+					'taxonomy'           => $media_taxonomy,
+					'show_option_all'    => __( 'View all categories', MCM_LANG ),
+					'show_option_none'   => __( 'No categories', MCM_LANG ),
+					'option_none_value'  => WP_MCM_OPTION_NO_CAT,
+					'selected'           => $selected_value,
+					'hide_empty'         => false,
+					'hierarchical'       => true,
+					'orderby'            => 'name',
+					'show_count'         => false,
+					'walker'             => new mcm_walker_category_filter(),
+					'value'              => 'id'
+				);
+				break;
+			default:
+				$selected_value = isset( $_GET[$media_taxonomy] ) ? $_GET[$media_taxonomy] : '';
+				$dropdown_options = array(
+					'taxonomy'           => $media_taxonomy,
+					'name'               => $media_taxonomy,
+					'show_option_all'    => __( 'View all categories', MCM_LANG ),
+					'show_option_none'   => __( 'No categories', MCM_LANG ),
+					'option_none_value'  => WP_MCM_OPTION_NO_CAT,
+					'selected'           => $selected_value,
+					'hide_empty'         => false,
+					'hierarchical'       => true,
+					'orderby'            => 'name',
+					'show_count'         => true,
+					'walker'             => new mcm_walker_category_filter(),
+					'value'              => 'slug'
+				);
+				break;
 		}
 		mcm_debugMP('pr',__FUNCTION__ . ' selected_value = ' . $selected_value . ', dropdown_options', $dropdown_options);
 		wp_dropdown_categories( $dropdown_options );
