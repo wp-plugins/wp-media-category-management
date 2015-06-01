@@ -98,7 +98,7 @@ class WP_MCM_Shortcodes {
 						'label'       => 'WP-MCM',
 						'description' => __('A shortcode with the same functionality as <code>WP_MCM</code> listed above.', MCM_LANG),
 						'class'       => $this,
-						'parameters'  => 'See the parameters of the <code>WP_MCM</code> shortcode above.',
+						'parameters'  => __('See the parameters of the <code>WP_MCM</code> shortcode above.', MCM_LANG),
 						'function'    => 'wp_mcm_shortcode'
 					),
 				);

@@ -250,13 +250,20 @@ class WP_MCM_Plugin {
 		if ( isset( $_REQUEST['bulk_tax_cat'] ) ) {
 			$searchCategory = $_REQUEST['bulk_tax_cat'];
 
+			// Get the request value to check for WP_MCM_OPTION_NO_CAT
+			$searchCategoryRequest = '';
 			if ( isset( $_REQUEST[$searchCategory] ) ) {
-				// Filter request on specific category so don't mess with it
-//				if ($_REQUEST[$searchCategory] == '-1') {
-				if ($_REQUEST[$searchCategory] == WP_MCM_OPTION_NO_CAT) {
-					$this->debugMP('msg',__FUNCTION__ . ' Searching for NO Category for searchCategory: ' . $searchCategory);
-					return $searchCategory;
+				$searchCategoryRequest = $_REQUEST[$searchCategory];
+			} else {
+				if ( ($_REQUEST['bulk_tax_cat'] == WP_MCM_POST_TAXONOMY) && isset( $_REQUEST['cat'] ) ) {
+					$searchCategoryRequest = $_REQUEST['cat'];
 				}
+			}
+
+			// Filter request on specific category so don't mess with it
+			if ($searchCategoryRequest == WP_MCM_OPTION_NO_CAT) {
+				$this->debugMP('msg',__FUNCTION__ . ' Searching for NO Category for searchCategory: ' . $searchCategory);
+				return $searchCategory;
 			}
 		}
 
