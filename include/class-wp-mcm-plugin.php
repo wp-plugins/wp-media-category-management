@@ -241,7 +241,7 @@ class WP_MCM_Plugin {
 		$searchCategory = '';
 
 		// Check for correct Filter situation
-		if ((!isset($_REQUEST['filter_action'])) || ($_REQUEST['filter_action'] != 'Filter')) {
+		if ((!isset($_REQUEST['filter_action'])) || ($_REQUEST['filter_action'] != __('Filter'))) {
 			$this->debugMP('msg',__FUNCTION__ . ' Invalid request: No filter action. ');
 			return $searchCategory;
 		}
