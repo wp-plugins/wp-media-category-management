@@ -20,6 +20,7 @@ function mcm_init_option_defaults() {
 		$wp_mcm_options['wp_mcm_custom_taxonomy_name']			= '';
 		$wp_mcm_options['wp_mcm_custom_taxonomy_name_single']	= '';
 		$wp_mcm_options['wp_mcm_use_post_taxonomy']				= '';
+		$wp_mcm_options['wp_mcm_search_media_library']			= '';
 		$wp_mcm_options['wp_mcm_use_default_category']			= '';
 		$wp_mcm_options['wp_mcm_default_media_category']		= WP_MCM_OPTION_NONE;
 		$wp_mcm_options['wp_mcm_default_post_category']			= '';
@@ -38,6 +39,9 @@ function mcm_init_option_defaults() {
 		}
 		if ( version_compare($version_on_start,'1.3','<') ) {
 			$wp_mcm_options['wp_mcm_custom_taxonomy_name_single']	= '';
+		}
+		if ( version_compare($version_on_start,'1.6','<') ) {
+			$wp_mcm_options['wp_mcm_search_media_library']	= '';
 		}
 	}
 
@@ -79,6 +83,20 @@ function mcm_string_to_bool($value) {
 	else {
 		return $value;
 	}
+}
+
+// Add values to query vars to extend the query
+function mcm_query_vars_add_values( $query_vars = '', $values_to_add = '' ) {
+
+	// Make input into array
+	$new_query_vars    = $query_vars;
+	$new_values_to_add = $values_to_add;
+	if (!is_array($query_vars))    { $new_query_vars    = array($query_vars); }
+	if (!is_array($values_to_add)) { $new_values_to_add = array($values_to_add); }
+
+	// Merge inputs to return
+	$new_query_vars = array_merge($new_query_vars, $new_values_to_add);
+	return $new_query_vars;
 }
 
 function mcm_get_posts_for_media_taxonomy( $taxonomy = '' ) {
@@ -242,6 +260,150 @@ function mcm_get_attachment_ids( $mcm_atts = array() ) {
 
 	return $attachment_ids_result;
 
+}
+
+/** Custom walker for wp_dropdown_categories, based on https://gist.github.com/stephenh1988/2902509 */
+class mcm_walker_category_filter extends Walker_CategoryDropdown{
+
+	function start_el( &$output, $category, $depth = 0, $args = array(), $id = 0 ) {
+
+		$pad = str_repeat( '&nbsp;', $depth * 3 );
+		$cat_name = apply_filters( 'list_cats', $category->name, $category );
+
+		if( ! isset( $args['value'] ) ) {
+			$args['value'] = 'slug';
+		}
+
+		$value = ( $args['value']=='slug' ? $category->slug : $category->term_id );
+
+		$output .= '<option class="level-' . $depth . '" value="' . $value . '"';
+		if ( $value === (string) $args['selected'] ) {
+			$output .= ' selected="selected"';
+		}
+		$output .= '>';
+		$output .= $pad . $cat_name;
+		if ( $args['show_count'] ) {
+			$output .= '&nbsp;&nbsp;(' . $category->count . ')';
+		}
+
+		$output .= "</option>\n";
+	}
+
+}
+
+/** Custom walker for wp_dropdown_categories for media grid view filter */
+class mcm_walker_category_mediagridfilter extends Walker_CategoryDropdown {
+
+	function start_el( &$output, $category, $depth = 0, $args = array(), $id = 0 ) {
+		$pad = str_repeat( '&nbsp;', $depth * 3 );
+		$cat_name = apply_filters( 'list_cats', $category->name, $category );
+
+		// {"term_id":"1","term_name":"no category"}
+		$output .= ',{"term_id":"' . $category->term_id . '",';
+
+		$output .= '"term_name":"' . $pad . esc_attr( $cat_name );
+		if ( $args['show_count'] ) {
+			$output .= '&nbsp;&nbsp;('. $category->count .')';
+		}
+		$output .= '"}';
+	}
+
+}
+
+/**
+ *  mcm_walker_category_mediagrid_checklist
+ *
+ *  Based on /wp-includes/category-template.php
+ *
+ *  @since    1.3.0
+ *  @created  12/11/14
+ */
+
+class mcm_walker_category_mediagrid_checklist extends Walker 
+{
+	var $tree_type = 'category';
+	var $db_fields = array ('parent' => 'parent', 'id' => 'term_id'); 
+
+	function start_lvl( &$output, $depth = 0, $args = array() ) {
+		$indent = str_repeat("\t", $depth);
+		$output .= "$indent<ul class='children'>\n";
+	}
+
+	function end_lvl( &$output, $depth = 0, $args = array() ) {
+		$indent = str_repeat("\t", $depth);
+		$output .= "$indent</ul>\n";
+	}
+
+	function start_el( &$output, $category, $depth = 0, $args = array(), $id = 0 ) {
+		extract($args);
+
+		if ( empty($taxonomy) ) {
+			$taxonomy = 'category';
+		}
+
+		$name = 'tax_input['.$taxonomy.']';
+
+		$output .= "\n<li id='{$taxonomy}-{$category->term_id}'>";
+		$output .= '<label class="selectit">';
+		$output .= '<input value="' . $category->slug . '" ';
+		$output .= 'type="checkbox" ';
+		$output .= 'name="'.$name.'['. $category->slug.']" ';
+		$output .= 'id="in-'.$taxonomy.'-' . $category->term_id . '"';
+		$output .= checked( in_array( $category->term_id, $selected_cats ), true, false );
+		$output .= disabled( empty( $args['disabled'] ), false, false );
+		$output .= ' /> ';
+		$output .= esc_html( apply_filters('the_category', $category->name ));
+		$output .= '</label>';
+	}
+
+	function end_el( &$output, $category, $depth = 0, $args = array() ) {
+		$output .= "</li>\n";
+	}
+}
+
+/** Get the options to determine the list of media_category */
+function mcm_get_media_category_options( $media_taxonomy = '', $selected_value = '') {
+
+	// Set options depending on type of taxonomy chosen
+	$dropdown_options = array(
+		'taxonomy'           => $media_taxonomy,
+		'option_none_value'  => WP_MCM_OPTION_NO_CAT,
+		'selected'           => $selected_value,
+		'hide_empty'         => false,
+		'hierarchical'       => true,
+		'orderby'            => 'name',
+		'walker'             => new mcm_walker_category_filter(),
+	);
+	switch ($media_taxonomy) {
+		case WP_MCM_TAGS_TAXONOMY:
+			$dropdown_options_extra = array(
+				'name'               => $media_taxonomy,
+				'show_option_all'    => __( 'View all tags', MCM_LANG ),
+				'show_option_none'   => __( 'No tags', MCM_LANG ),
+				'show_count'         => false,
+				'value'              => 'slug'
+			);
+			break;
+		case WP_MCM_POST_TAXONOMY:
+			$dropdown_options_extra = array(
+				'show_option_all'    => __( 'View all categories', MCM_LANG ),
+				'show_option_none'   => __( 'No categories', MCM_LANG ),
+				'show_count'         => false,
+				'value'              => 'id'
+			);
+			break;
+		default:
+			$dropdown_options_extra = array(
+				'name'               => $media_taxonomy,
+				'show_option_all'    => __( 'View all categories', MCM_LANG ),
+				'show_option_none'   => __( 'No categories', MCM_LANG ),
+				'show_count'         => true,
+				'value'              => 'slug'
+			);
+			break;
+	}
+	mcm_debugMP('pr',__FUNCTION__ . ' selected_value = ' . $selected_value . ', dropdown_options', array_merge($dropdown_options, $dropdown_options_extra));
+	return array_merge($dropdown_options, $dropdown_options_extra);
 }
 
 /**

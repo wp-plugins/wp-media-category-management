@@ -14,7 +14,7 @@
  * Plugin Name: WP Media Category Management
  * Plugin URI:  https://www.de-baat.nl/WP_MCM
  * Description: A plugin to provide bulk category management functionality for media in WordPress sites.
- * Version:     1.5.2
+ * Version:     1.6.0
  * Author:      De B.A.A.T. <wp-mcm@de-baat.nl>
  * Author URI:  https://www.de-baat.nl/WP_MCM
  * Text Domain: wp-mcm-locale
@@ -29,7 +29,7 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 define( 'WP_MCM_LINK',					'https://www.de-baat.nl/WP_MCM' );
-define( 'WP_MCM_VERSION',				'1.5.2' );
+define( 'WP_MCM_VERSION',				'1.6.0' );
 define( 'WP_MCM_OPTIONS_NAME',			'wp-media-category-management-options' ); // Option name for save settings
 define( 'WP_MCM_OPTION_NONE',			'uncategorized' );
 define( 'WP_MCM_POST_TAXONOMY',			'category' );
@@ -58,6 +58,7 @@ if (defined('WP_MCM_PREFIX') === false) {
 require_once( WP_MCM_DIR . '/include/wp-mcm-functions.php' );
 require_once( WP_MCM_DIR . '/include/class-wp-mcm-plugin.php' );
 require_once( WP_MCM_DIR . '/include/class-wp-mcm-shortcodes.php' );
+require_once( WP_MCM_DIR . '/include/wp-mcm-widgets.php' );
 
 // load code that is only needed in the admin section
 if ( is_admin() ) {

@@ -10,107 +10,9 @@
  */
 
 
-/** Custom walker for wp_dropdown_categories, based on https://gist.github.com/stephenh1988/2902509 */
-class mcm_walker_category_filter extends Walker_CategoryDropdown{
-
-	function start_el( &$output, $category, $depth = 0, $args = array(), $id = 0 ) {
-
-		$pad = str_repeat( '&nbsp;', $depth * 3 );
-		$cat_name = apply_filters( 'list_cats', $category->name, $category );
-
-		if( ! isset( $args['value'] ) ) {
-			$args['value'] = 'slug';
-		}
-
-		$value = ( $args['value']=='slug' ? $category->slug : $category->term_id );
-
-		$output .= '<option class="level-' . $depth . '" value="' . $value . '"';
-		if ( $value === (string) $args['selected'] ) {
-			$output .= ' selected="selected"';
-		}
-		$output .= '>';
-		$output .= $pad . $cat_name;
-		if ( $args['show_count'] ) {
-			$output .= '&nbsp;&nbsp;(' . $category->count . ')';
-		}
-
-		$output .= "</option>\n";
-	}
-
-}
-
-/** Custom walker for wp_dropdown_categories for media grid view filter */
-class mcm_walker_category_mediagridfilter extends Walker_CategoryDropdown {
-
-	function start_el( &$output, $category, $depth = 0, $args = array(), $id = 0 ) {
-		$pad = str_repeat( '&nbsp;', $depth * 3 );
-		$cat_name = apply_filters( 'list_cats', $category->name, $category );
-
-		// {"term_id":"1","term_name":"no category"}
-		$output .= ',{"term_id":"' . $category->term_id . '",';
-
-		$output .= '"term_name":"' . $pad . esc_attr( $cat_name );
-		if ( $args['show_count'] ) {
-			$output .= '&nbsp;&nbsp;('. $category->count .')';
-		}
-		$output .= '"}';
-	}
-
-}
-
-/**
- *  mcm_walker_category_mediagrid_checklist
- *
- *  Based on /wp-includes/category-template.php
- *
- *  @since    1.3.0
- *  @created  12/11/14
- */
-
-class mcm_walker_category_mediagrid_checklist extends Walker 
-{
-	var $tree_type = 'category';
-	var $db_fields = array ('parent' => 'parent', 'id' => 'term_id'); 
-
-	function start_lvl( &$output, $depth = 0, $args = array() ) {
-		$indent = str_repeat("\t", $depth);
-		$output .= "$indent<ul class='children'>\n";
-	}
-
-	function end_lvl( &$output, $depth = 0, $args = array() ) {
-		$indent = str_repeat("\t", $depth);
-		$output .= "$indent</ul>\n";
-	}
-
-	function start_el( &$output, $category, $depth = 0, $args = array(), $id = 0 ) {
-		extract($args);
-
-		if ( empty($taxonomy) ) {
-			$taxonomy = 'category';
-		}
-
-		$name = 'tax_input['.$taxonomy.']';
-
-		$output .= "\n<li id='{$taxonomy}-{$category->term_id}'>";
-		$output .= '<label class="selectit">';
-		$output .= '<input value="' . $category->slug . '" ';
-		$output .= 'type="checkbox" ';
-		$output .= 'name="'.$name.'['. $category->slug.']" ';
-		$output .= 'id="in-'.$taxonomy.'-' . $category->term_id . '"';
-		$output .= checked( in_array( $category->term_id, $selected_cats ), true, false );
-		$output .= disabled( empty( $args['disabled'] ), false, false );
-		$output .= ' /> ';
-		$output .= esc_html( apply_filters('the_category', $category->name ));
-		$output .= '</label>';
-	}
-
-	function end_el( &$output, $category, $depth = 0, $args = array() ) {
-		$output .= "</li>\n";
-	}
-}
-
 /** Add a category filter */
 function mcm_add_category_filter() {
+
 	global $pagenow;
 	if ( 'upload.php' == $pagenow ) {
 
@@ -119,60 +21,16 @@ function mcm_add_category_filter() {
 		mcm_debugMP('pr',__FUNCTION__ . ' taxonomy = ' . $media_taxonomy);
 
 		// Set options depending on type of taxonomy chosen
-		//if ( $media_taxonomy != WP_MCM_POST_TAXONOMY ) {
 		switch ($media_taxonomy) {
-			case WP_MCM_TAGS_TAXONOMY:
-				$selected_value = isset( $_GET[$media_taxonomy] ) ? $_GET[$media_taxonomy] : '';
-				$dropdown_options = array(
-					'taxonomy'           => $media_taxonomy,
-					'name'               => $media_taxonomy,
-					'show_option_all'    => __( 'View all tags', MCM_LANG ),
-					'show_option_none'   => __( 'No tags', MCM_LANG ),
-					'option_none_value'  => WP_MCM_OPTION_NO_CAT,
-					'selected'           => $selected_value,
-					'hide_empty'         => false,
-					'hierarchical'       => true,
-					'orderby'            => 'name',
-					'show_count'         => false,
-					'walker'             => new mcm_walker_category_filter(),
-					'value'              => 'slug'
-				);
-				break;
 			case WP_MCM_POST_TAXONOMY:
 				$selected_value = isset( $_GET['cat'] ) ? $_GET['cat'] : '';
-				$dropdown_options = array(
-					'taxonomy'           => $media_taxonomy,
-					'show_option_all'    => __( 'View all categories', MCM_LANG ),
-					'show_option_none'   => __( 'No categories', MCM_LANG ),
-					'option_none_value'  => WP_MCM_OPTION_NO_CAT,
-					'selected'           => $selected_value,
-					'hide_empty'         => false,
-					'hierarchical'       => true,
-					'orderby'            => 'name',
-					'show_count'         => false,
-					'walker'             => new mcm_walker_category_filter(),
-					'value'              => 'id'
-				);
 				break;
 			default:
 				$selected_value = isset( $_GET[$media_taxonomy] ) ? $_GET[$media_taxonomy] : '';
-				$dropdown_options = array(
-					'taxonomy'           => $media_taxonomy,
-					'name'               => $media_taxonomy,
-					'show_option_all'    => __( 'View all categories', MCM_LANG ),
-					'show_option_none'   => __( 'No categories', MCM_LANG ),
-					'option_none_value'  => WP_MCM_OPTION_NO_CAT,
-					'selected'           => $selected_value,
-					'hide_empty'         => false,
-					'hierarchical'       => true,
-					'orderby'            => 'name',
-					'show_count'         => true,
-					'walker'             => new mcm_walker_category_filter(),
-					'value'              => 'slug'
-				);
 				break;
 		}
-		mcm_debugMP('pr',__FUNCTION__ . ' selected_value = ' . $selected_value . ', dropdown_options', $dropdown_options);
+
+		$dropdown_options = mcm_get_media_category_options($media_taxonomy, $selected_value);
 		wp_dropdown_categories( $dropdown_options );
 	}
 }
@@ -331,7 +189,7 @@ function mcm_media_row_actions($row_actions, $media, $detached) {
 		$actionlink_url    = mcm_create_sendback_url();
 		$actionlink_url    = add_query_arg( 'media', $media->ID, $actionlink_url );
 		$actionlink_url    = add_query_arg( 'action', WP_MCM_ACTION_BULK_TOGGLE, $actionlink_url );
-		$actionlink_prefix = __( 'Toggle ', MCM_LANG );
+		$actionlink_prefix = __( 'Toggle', MCM_LANG ) . ' ';
 
 		// Generate an action text and link for each term
 		foreach ($media_terms as $term) {
@@ -340,7 +198,6 @@ function mcm_media_row_actions($row_actions, $media, $detached) {
 			$actionlink  = add_query_arg( 'bulk_tax_id', $term->slug, $actionlink );
 			// Create a clickable label for the generated url
 			$actionlink  = '<a class="submitdelete" href="' . wp_nonce_url( $actionlink );
-//			$actionlink .= '">' . __( 'Toggle ', MCM_LANG );
 			$actionlink .= '">' . $actionlink_prefix;
 			$actionlink_prefix = ' ';
 			$actionlink .= '[<em>' . $term->name . '</em>]';
@@ -434,7 +291,7 @@ function mcm_custom_bulk_admin_footer() {
 
 			// add bulk_actions for each category term
 			foreach ( $media_terms as $term ) {
-				$optionTxt = esc_js( __( 'Toggle ', MCM_LANG ) . $term->name );
+				$optionTxt = esc_js( __( 'Toggle', MCM_LANG ) . ' ' . $term->name );
 				$mcm_footer_script .= " jQuery('<option>').val('" . WP_MCM_ACTION_BULK_TOGGLE . "').attr('option_slug','" . $term->slug . "').text('" . $optionTxt . "').appendTo(\"select[name='action']\");";
 				$mcm_footer_script .= " jQuery('<option>').val('" . WP_MCM_ACTION_BULK_TOGGLE . "').attr('option_slug','" . $term->slug . "').text('" . $optionTxt . "').appendTo(\"select[name='action2']\");";
 			}
