@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Media Category Management v1.6.0\n"
+"Project-Id-Version: WP Media Category Management v1.6.1\n"
 "Report-Msgid-Bugs-To: https://www.de-baat.nl/WP_MCM\n"
 "POT-Creation-Date: 2014-11-09 15:17+0100\n"
-"PO-Revision-Date: 2015-06-13 09:18:34+0000\n"
+"PO-Revision-Date: 2015-06-13 13:25:23+0000\n"
 "Last-Translator: Andrijana Nikolic <http://webhostinggeeks.com/>\n"
 "Language-Team: Andrijana Nikolic <http://webhostinggeeks.com/>\n"
 "MIME-Version: 1.0\n"
@@ -415,11 +415,6 @@ msgstr "Plugin omogucava funkcije upravljanja  medijima na WordPress stranicama.
 msgid "De B.A.A.T. <wp-mcm@de-baat.nl>"
 msgstr "De B.A.A.T. <wp-mcm@de-baat.nl>"
 
-#: include/class-wp-mcm-plugin.php:306
-#@ default
-msgid "Filter"
-msgstr ""
-
 #: include/class-wp-mcm-plugin.php:617
 #: include/wp-mcm-functions.php:382
 #@ wp-mcm
@@ -490,6 +485,6 @@ msgstr ""
 #. translators: plugin header field 'Version'
 #: wp-media-category-management.php:0
 #@ wp-mcm
-msgid "1.6.0"
+msgid "1.6.1"
 msgstr ""
 

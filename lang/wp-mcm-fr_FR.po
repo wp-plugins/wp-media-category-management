@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Media Category Management v1.6.0\n"
+"Project-Id-Version: WP Media Category Management v1.6.1\n"
 "Report-Msgid-Bugs-To: https://www.de-baat.nl/WP_MCM\n"
 "POT-Creation-Date: 2015-04-05 10:00+0100\n"
-"PO-Revision-Date: 2015-06-13 09:17:08+0000\n"
+"PO-Revision-Date: 2015-06-13 13:25:13+0000\n"
 "Last-Translator: De BAAT <De_BAAT@de-baat.nl>\n"
 "Language-Team: De B.A.A.T. <wp-mcm@de-baat.nl>\n"
 "MIME-Version: 1.0\n"
@@ -437,11 +437,6 @@ msgstr ""
 msgid "(T) means that the taxonomy is also used as tags for posts."
 msgstr ""
 
-#: include/class-wp-mcm-plugin.php:306
-#@ default
-msgid "Filter"
-msgstr ""
-
 #: include/class-wp-mcm-plugin.php:810
 #@ wp-mcm
 msgid "Search Media Library"
@@ -490,6 +485,6 @@ msgstr ""
 #. translators: plugin header field 'Version'
 #: wp-media-category-management.php:0
 #@ wp-mcm
-msgid "1.6.0"
+msgid "1.6.1"
 msgstr ""
 

@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Media Category Management v1.6.0\n"
+"Project-Id-Version: WP Media Category Management v1.6.1\n"
 "Report-Msgid-Bugs-To: https://www.de-baat.nl/WP_MCM\n"
 "POT-Creation-Date: 2015-05-25 17:05+0100\n"
-"PO-Revision-Date: 2015-06-13 09:17:56+0000\n"
+"PO-Revision-Date: 2015-06-13 13:25:01+0000\n"
 "Last-Translator: Marcel Dischinger\n"
 "Language-Team: De B.A.A.T. <wp-mcm@de-baat.nl>\n"
 "MIME-Version: 1.0\n"
@@ -442,11 +442,6 @@ msgstr "De B.A.A.T. <wp-mcm@de-baat.nl>"
 msgid "See the parameters of the <code>WP_MCM</code> shortcode above."
 msgstr "Siehe die Parameter des <code>WP_MCM</code> Shortcodes oben."
 
-#: include/class-wp-mcm-plugin.php:306
-#@ default
-msgid "Filter"
-msgstr ""
-
 #: include/class-wp-mcm-plugin.php:810
 #@ wp-mcm
 msgid "Search Media Library"
@@ -490,6 +485,6 @@ msgstr ""
 #. translators: plugin header field 'Version'
 #: wp-media-category-management.php:0
 #@ wp-mcm
-msgid "1.6.0"
+msgid "1.6.1"
 msgstr ""
 
